@@ -15,15 +15,14 @@ The development will go through different phases:
 Versioning
 ----------
 
-During the "dev" phase, the git "tags" will have the following conventions:
+During the "dev" phase, the git "tags" will now have the following conventions:
 
-`0.X.Y-devZ`
+`dev-X.Y.Z`
 
-* X corresponds to the _step_ (as defined in _task.md_).
-* Y corresponds to different bug fixes upon a _step_.
-* Z is incremented once a _feature_ is added (as defined in the list of each steps in _task.md_). It may be of the form _A.B_ with B being a number starting from 1, used to indicate bug-fixes.
+* X corresponds to the _version_ (as defined in _task.md_). Currently, it is 0 until a proper version can be shipped.
+* Y corresponds to a _step_ (as defined in _task.md_).
+* Z correspond to an improvement or bug-fixes upon a step.
 
 Once the _prealpha_, _alpha_ or _beta_ gets ready, the _dev_ keyword will be replaced by the corresponding keyword.
 
-For releases, the `-betaZ` is dropped and proper versioning as defined in http://semver.org/ is used.
-For release-candidate, the version will be in the form `X.Y.Z-rcW`
+It should basically follow the versioning as defined in http://semver.org/
