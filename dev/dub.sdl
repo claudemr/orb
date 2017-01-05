@@ -1,0 +1,35 @@
+name        "orb"
+description "D implementation of 3D engine ORB"
+authors     "Claude Mr"
+homepage    "-"
+licence     "GPL-3.0"
+
+mainSourceFile      "src/main.d"
+stringImportPaths   "shader"
+excludedSourceFiles "src/old/*.d"
+
+configuration "linux64_x86" {
+        targetType "executable"
+        platforms  "linux" "x86_64"
+        targetPath "out/linux64_x86"
+    }
+configuration "linux32_x86" {
+        targetType "executable"
+        platforms  "linux" "x86"
+        targetPath "out/linux32_x86"
+    }
+configuration "win64_x86" {
+        targetType "executable"
+        platforms  "windows" "x86_64"
+        targetPath "out/win64_x86"
+    }
+configuration "win32_x86" {
+        targetType "executable"
+        platforms  "windows" "x86"
+        targetPath "out/win32_x86"
+    }
+
+dependency "derelict-gl3"  version="~>1.0"
+dependency "derelict-sdl2" version="~>1.0"
+dependency "dlib"          version="~>0.9"
+dependency "entitysysd"    version="~>2.0"

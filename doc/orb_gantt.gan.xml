@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8"?><project name="orb" company="" webLink="http://" view-date="2014-04-01" view-index="0" gantt-divider-location="429" resource-divider-location="300" version="2.8.1" locale="en_US">
+    <description/>
+    <view zooming-state="default:11" id="gantt-chart">
+        <field id="tpd3" name="Name" width="265" order="0"/>
+        <field id="tpd4" name="Begin date" width="83" order="1"/>
+        <field id="tpd5" name="End date" width="77" order="2"/>
+        <option id="color.recent"><![CDATA[#00cccc #99ff00 #ffcc66 #6699ff #ff6666]]></option>
+    </view>
+    <view id="resource-table">
+        <field id="0" name="Name" width="210" order="0"/>
+        <field id="1" name="Default role" width="86" order="1"/>
+    </view>
+    <!-- -->
+    <calendars>
+        <day-types>
+            <day-type id="0"/>
+            <day-type id="1"/>
+            <default-week id="1" name="default" sun="1" mon="0" tue="0" wed="0" thu="0" fri="0" sat="1"/>
+            <only-show-weekends value="false"/>
+            <overriden-day-types/>
+            <days/>
+        </day-types>
+    </calendars>
+    <tasks empty-milestones="true">
+        <taskproperties>
+            <taskproperty id="tpd0" name="type" type="default" valuetype="icon"/>
+            <taskproperty id="tpd1" name="priority" type="default" valuetype="icon"/>
+            <taskproperty id="tpd2" name="info" type="default" valuetype="icon"/>
+            <taskproperty id="tpd3" name="name" type="default" valuetype="text"/>
+            <taskproperty id="tpd4" name="begindate" type="default" valuetype="date"/>
+            <taskproperty id="tpd5" name="enddate" type="default" valuetype="date"/>
+            <taskproperty id="tpd6" name="duration" type="default" valuetype="int"/>
+            <taskproperty id="tpd7" name="completion" type="default" valuetype="int"/>
+            <taskproperty id="tpd8" name="coordinator" type="default" valuetype="text"/>
+            <taskproperty id="tpd9" name="predecessorsr" type="default" valuetype="text"/>
+        </taskproperties>
+        <task id="0" name="orb" color="#6699ff" meeting="false" start="2014-04-11" duration="631" complete="91" expand="true">
+            <task id="13" name="version 1" color="#ff6666" meeting="false" start="2014-04-11" duration="629" complete="92" expand="true">
+                <notes><![CDATA[Main goals:
+* Rendering based on OpenGL3.0 - voxel world. High precision, far rendering. No texture, light, proper shadows.
+* World generated as a ball (with noise for terrain features)
+* Basic physic engine, collision detection.
+* Can walk, jump, fly.
+* Have entities that move around (simple movement).
+* Have a GUI.
+* Basic particle system, billboards etc.
+]]></notes>
+                <depend id="16" type="2" difference="0" hardness="Strong"/>
+                <task id="94" name="step 1 (test)" color="#00cccc" meeting="false" start="2014-04-11" duration="333" complete="99" expand="true">
+                    <notes><![CDATA[* Cube drawn with OpenGL3.0 and SDL2.0 with D language, using Derelict binding library.
+* Some basic class made around some OpenGL calls (Hardware Buffer, Shader management).
+* Matrix, vector tools done.
+* Camera class added.
+* OpenGL Exception class.
+* Make the basis of a scene manager.
+* Allow to have some text overlays.
+* Integrate a FPS counter.
+* Make a "marching-cube" algorithm generator.
+* Implement noise function.
+]]></notes>
+                    <depend id="96" type="2" difference="0" hardness="Strong"/>
+                    <task id="2" name="brainstorming" color="#8cb6ce" meeting="false" start="2014-04-11" duration="128" complete="100" expand="true">
+                        <notes><![CDATA[Writing down few ideas about geomtery and space partitioning.]]></notes>
+                        <depend id="24" type="2" difference="0" hardness="Strong"/>
+                    </task>
+                    <task id="24" name="initial draft" color="#8cb6ce" meeting="false" start="2014-10-08" duration="119" complete="100" expand="true">
+                        <notes><![CDATA[Draft for:
+* D language usage
+* SDL2 graphic library integration
+* OpenGL 3.0 shaders
+* Simplex noise function
+* Marching cube algorithm for smooth voxel surface generation
+* Vector/matrix modules
+* Camera rendering, free flight
+* Directional light]]></notes>
+                        <depend id="33" type="2" difference="0" hardness="Strong"/>
+                    </task>
+                    <task id="33" name="v0.1.0" color="#8cb6ce" meeting="true" start="2015-03-24" duration="0" complete="100" expand="true">
+                        <depend id="42" type="2" difference="0" hardness="Strong"/>
+                    </task>
+                    <task id="42" name="entity brainstorming" color="#8cb6ce" meeting="false" start="2015-03-24" duration="86" complete="100" expand="true">
+                        <notes><![CDATA[Research about entity management, physic engine.]]></notes>
+                        <depend id="51" type="2" difference="0" hardness="Strong"/>
+                    </task>
+                    <task id="51" name="v0.2.0-dev0" color="#8cb6ce" meeting="true" start="2015-07-22" duration="0" complete="0" expand="true">
+                        <depend id="62" type="2" difference="0" hardness="Strong"/>
+                    </task>
+                </task>
+                <task id="96" name="step 2 (archi)" color="#00cccc" meeting="false" start="2015-07-22" duration="186" complete="98" expand="true">
+                    <notes><![CDATA[* EntitySys D integration.
+* Architecture and code rework to make everything fit nicely.
+* Proper text rendering and draft for GUI.]]></notes>
+                    <depend id="100" type="2" difference="0" hardness="Strong"/>
+                    <task id="62" name="entitysysd integration" color="#8cb6ce" meeting="false" start="2015-07-22" duration="126" complete="100" expand="true">
+                        <notes><![CDATA[Progress:
+* Integration of ECS framework EntitySysD.
+* Lot of code architecture rework.]]></notes>
+                        <depend id="70" type="2" difference="0" hardness="Strong"/>
+                    </task>
+                    <task id="70" name="v0.2.0-dev1" color="#8cb6ce" meeting="true" start="2016-01-14" duration="0" complete="0" expand="true">
+                        <depend id="73" type="2" difference="0" hardness="Strong"/>
+                    </task>
+                    <task id="73" name="architecture" color="#8cb6ce" meeting="false" start="2016-01-14" duration="40" complete="100" expand="true">
+                        <notes><![CDATA[* Bug fixing
+* Architecture, code rework
+* Terrain module draft]]></notes>
+                        <depend id="81" type="2" difference="0" hardness="Strong"/>
+                    </task>
+                    <task id="81" name="v0.2.0-dev2" color="#8cb6ce" meeting="true" start="2016-03-10" duration="0" complete="0" expand="true">
+                        <depend id="84" type="2" difference="0" hardness="Strong"/>
+                    </task>
+                    <task id="84" name="text rendering" color="#8cb6ce" meeting="false" start="2016-03-10" duration="20" complete="100" expand="true">
+                        <notes><![CDATA[* More code architecture rework.
+* VAO integrated.
+* Input proper management.
+* Proper text rendering.
+* Draft for GUI management.]]></notes>
+                        <depend id="91" type="2" difference="0" hardness="Strong"/>
+                    </task>
+                    <task id="91" name="v0.2.0-dev3" color="#8cb6ce" meeting="true" start="2016-04-07" duration="0" complete="0" expand="true">
+                        <depend id="108" type="2" difference="0" hardness="Strong"/>
+                    </task>
+                </task>
+                <task id="100" name="step 3 (terrain)" color="#00cccc" meeting="false" start="2016-04-07" duration="110" complete="66" expand="true">
+                    <task id="108" name="chunk rendering" color="#8cb6ce" meeting="false" start="2016-04-07" duration="26" complete="100" expand="true">
+                        <notes><![CDATA[* Draw several chunk.
+* More archi rework (module dependencies tracked and rationalized).
+* Use octtree.
+]]></notes>
+                        <depend id="113" type="2" difference="0" hardness="Strong"/>
+                    </task>
+                    <task id="113" name="v0.2.0-dev4" color="#8cb6ce" meeting="true" start="2016-05-13" duration="0" complete="0" expand="true">
+                        <depend id="120" type="2" difference="0" hardness="Strong"/>
+                    </task>
+                    <task id="120" name="multiple chunks" color="#8cb6ce" meeting="false" start="2016-05-13" duration="17" complete="100" expand="true">
+                        <notes><![CDATA[* Draw several chunks.
+* Optimize chunk rendering (smaller mesh data per chunk).
+* Start optimizing by loading and displaying only the visible chunks (notion rendering distance).
+* Increase rendering distance as much as possible.
+]]></notes>
+                        <depend id="128" type="2" difference="0" hardness="Strong"/>
+                    </task>
+                    <task id="128" name="v0.2.0-dev5" color="#8cb6ce" meeting="true" start="2016-06-07" duration="0" complete="0" expand="true">
+                        <depend id="137" type="2" difference="0" hardness="Strong"/>
+                    </task>
+                    <task id="137" name="optimize chunk render" color="#8cb6ce" meeting="false" start="2016-06-07" duration="14" complete="100" expand="true">
+                        <notes><![CDATA[* Drop Voxel bal iterator.
+* Use Circular rray of chunks.
+* Chunk neighboring functions.]]></notes>
+                        <depend id="143" type="2" difference="0" hardness="Strong"/>
+                    </task>
+                    <task id="143" name="v0.2.0-dev6" color="#8cb6ce" meeting="true" start="2016-06-27" duration="0" complete="0" expand="true">
+                        <depend id="148" type="2" difference="0" hardness="Strong"/>
+                    </task>
+                    <task id="148" name="benchmark chunk render" color="#8cb6ce" meeting="false" start="2016-06-27" duration="1" complete="100" expand="true">
+                        <notes><![CDATA[* get rid of octree.
+* benchmark chunk population and meshing.]]></notes>
+                        <depend id="169" type="2" difference="0" hardness="Strong"/>
+                    </task>
+                    <task id="169" name="v0.2.0-dev7" color="#8cb6ce" meeting="true" start="2016-06-28" duration="0" complete="0" expand="true">
+                        <depend id="175" type="2" difference="0" hardness="Strong"/>
+                    </task>
+                    <task id="175" name="debug chunk render" color="#8cb6ce" meeting="false" start="2016-06-28" duration="4" complete="100" expand="true">
+                        <notes><![CDATA[* Proper rendering of chunks.
+* Do not render empty chunks.]]></notes>
+                        <depend id="196" type="2" difference="0" hardness="Strong"/>
+                    </task>
+                    <task id="196" name="v0.2.0-dev8" color="#8cb6ce" meeting="true" start="2016-07-04" duration="0" complete="0" expand="true">
+                        <depend id="205" type="2" difference="0" hardness="Strong"/>
+                    </task>
+                    <task id="205" name="chunk mem management" color="#8cb6ce" meeting="false" start="2016-07-04" duration="15" complete="100" expand="true">
+                        <notes><![CDATA[* Use pool of chunks.
+* Debug.]]></notes>
+                        <depend id="217" type="2" difference="0" hardness="Strong"/>
+                    </task>
+                    <task id="217" name="v0.2.0-dev9" color="#8cb6ce" meeting="true" start="2016-07-25" duration="0" complete="0" expand="true">
+                        <depend id="221" type="2" difference="0" hardness="Strong"/>
+                    </task>
+                    <task id="221" name="optimize chunk pop/mesh" color="#8cb6ce" meeting="false" start="2016-07-25" duration="33" complete="0" expand="true"/>
+                </task>
+            </task>
+            <task id="16" name="version 2" color="#ffcc66" meeting="false" start="2016-09-08" duration="1" complete="0" expand="true">
+                <notes><![CDATA[Main goals:
+* Client/server architecture.
+* Multiplayer features.
+* Allow to dig and fill terrain, have items. (Crafting?)
+* AI for entities, can move around.
+* Water, fluid handling, proper physics.
+* (Building system?)
+]]></notes>
+                <depend id="17" type="2" difference="0" hardness="Strong"/>
+            </task>
+            <task id="17" name="version 3" color="#99ff00" meeting="false" start="2016-09-09" duration="1" complete="0" expand="true">
+                <notes><![CDATA[Main goals:
+* Integrate Villagecraft ideas? Implement AI's... Make a proper game anyway...
+]]></notes>
+            </task>
+        </task>
+    </tasks>
+    <resources>
+        <resource id="0" name="Claude" function="SoftwareDevelopment:2" contacts="" phone=""/>
+    </resources>
+    <allocations>
+        <allocation task-id="0" resource-id="0" function="SoftwareDevelopment:2" responsible="true" load="100.0"/>
+        <allocation task-id="2" resource-id="0" function="SoftwareDevelopment:2" responsible="true" load="100.0"/>
+        <allocation task-id="42" resource-id="0" function="SoftwareDevelopment:2" responsible="true" load="100.0"/>
+        <allocation task-id="24" resource-id="0" function="SoftwareDevelopment:2" responsible="true" load="100.0"/>
+        <allocation task-id="13" resource-id="0" function="SoftwareDevelopment:2" responsible="true" load="100.0"/>
+        <allocation task-id="62" resource-id="0" function="SoftwareDevelopment:2" responsible="true" load="100.0"/>
+        <allocation task-id="73" resource-id="0" function="SoftwareDevelopment:2" responsible="true" load="100.0"/>
+        <allocation task-id="84" resource-id="0" function="SoftwareDevelopment:2" responsible="true" load="100.0"/>
+        <allocation task-id="100" resource-id="0" function="SoftwareDevelopment:2" responsible="true" load="100.0"/>
+        <allocation task-id="108" resource-id="0" function="SoftwareDevelopment:2" responsible="true" load="100.0"/>
+        <allocation task-id="120" resource-id="0" function="SoftwareDevelopment:2" responsible="true" load="100.0"/>
+        <allocation task-id="137" resource-id="0" function="SoftwareDevelopment:2" responsible="true" load="100.0"/>
+        <allocation task-id="148" resource-id="0" function="SoftwareDevelopment:2" responsible="true" load="100.0"/>
+        <allocation task-id="175" resource-id="0" function="SoftwareDevelopment:2" responsible="true" load="100.0"/>
+        <allocation task-id="96" resource-id="0" function="SoftwareDevelopment:2" responsible="true" load="100.0"/>
+        <allocation task-id="94" resource-id="0" function="SoftwareDevelopment:2" responsible="true" load="100.0"/>
+    </allocations>
+    <vacations/>
+    <previous/>
+    <roles roleset-name="Default"/>
+    <roles roleset-name="SoftwareDevelopment"/>
+</project>

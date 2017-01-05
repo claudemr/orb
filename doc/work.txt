@@ -1,0 +1,67 @@
+
+Ball rendering:
+
+Sphere area:
+S = 4 * pi * r^2
+
+Volume of a ball:
+V = 4 / 3 * pi * r^3
+
+================================
+
+In Skyrim, the total map is estimated at 40km². So it's 6.3km edge or 4x10 or 5x8.
+It would be the surface of a sphere of radius 1784 meters, and circonference of 11210 meters
+If a block has a size of half a meter, it would represent 190'266'857'984 blocks.
+
+================================
+
+HALF ANGLE FORMULAE:
+cos(a/2) = sqrt((1+cos(a))/2)
+sin(a/2) = sqrt((1-cos(a))/2)
+
+================================
+
+RESOURCES:
+http://kartoweb.itc.nl/geometrics/coordinate%20systems/coordsys.html
+http://en.wikipedia.org/wiki/Rhombic_dodecahedron
+https://sites.google.com/site/letsmakeavoxelengine/home/basic-block-rendering
+
+3D math resources:
+http://doc.cgal.org/latest/Triangulation_3/annotated.html
+
+3D tesselation:
+http://commons.wikimedia.org/wiki/Tessellation
+
+Opengl:
+http://www.opengl-tutorial.org/
+http://www.mbsoftworks.sk/index.php?page=tutorials&series=1
+http://www.antongerdelan.net/opengl/
+http://www.glprogramming.com/red/
+http://lazyfoo.net/tutorials/SDL/51_SDL_and_modern_opengl/index.php
+http://www.arcsynthesis.org/gltut/
+
+World map generation using libnoise:
+http://libnoise.sourceforge.net/tutorials/tutorial3.html
+
+Terrain generation using GPU:
+http://http.developer.nvidia.com/GPUGems3/gpugems3_ch01.html
+
+MATRIX & QUATERNIONS:
+http://unspecified.wordpress.com/2012/06/21/calculating-the-gluperspective-matrix-and-other-opengl-matrix-maths/
+http://3dgep.com/understanding-quaternions
+http://eigen.tuxfamily.org/index.php?title=Main_Page
+
+DETECTING KEYBOARD LAYOUT:
+https://gist.github.com/g2p/8597984
+http://gamedev.stackexchange.com/questions/53064/how-can-i-handle-different-keyboard-layouts
+
+MESH:
+https://0fps.net/2012/07/12/smooth-voxel-terrain-part-2/
+
+SHADERS:
+* Toonify: http://www.geeks3d.com/20140523/glsl-shader-library-toonify-post-processing-filter/
+
+GUI:
+* Search for IMGUI or DLANGUI
+* Render window layout with 9-path images : http://radleymarx.com/blog/simple-guide-to-9-patch/
+

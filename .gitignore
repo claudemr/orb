@@ -1,0 +1,8 @@
+# Ignore rules
+.buildpath
+.dub
+.externalToolBuilders
+.project
+.settings
+dev/out/win*_x86/orb.exe
+dev/out/linux*_x86/orb
