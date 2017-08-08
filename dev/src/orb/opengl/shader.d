@@ -1,5 +1,5 @@
-/* ORB - 3D/physics/IA engine
-   Copyright (C) 2015 ClaudeMr
+/* ORB - 3D/physics/AI engine
+   Copyright (C) 2015-2017 Claude
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -67,17 +67,60 @@ class ShaderException : Exception
 }
 
 
-ShaderProgram loadShaders(string fragmentShaderCode,
-                          string vertexShaderCode,
-                          string geometryShaderCode = null)
+ShaderProgram[string] lookupShaders(string path)
+{
+    import std.file : dirEntries, readText, SpanMode;
+    import std.regex : ctRegex, matchFirst;
+
+    static struct ShaderFile
+    {
+        string fragment;
+        string vertex;
+    }
+
+    // make a database of the shaders
+    ShaderFile[string] shaderFiles;
+    auto shaderMatch = ctRegex!(`(?P<type>\w+)_(?P<stage>\w+)\.glsl$`);
+    foreach (string shaderFilename; dirEntries(path, SpanMode.shallow))
+    {
+        auto matchRet = matchFirst(shaderFilename, shaderMatch);
+        if (matchRet.length != 3 || matchRet["type"].length < 1)
+            continue;
+        auto shaderFile = matchRet["type"] in shaderFiles;
+        if (shaderFile is null)
+        {
+            shaderFiles[matchRet["type"]] = ShaderFile("", "");
+            shaderFile = &shaderFiles[matchRet["type"]];
+        }
+        if (matchRet["stage"] == "fragment")
+            shaderFile.fragment = shaderFilename;
+        else if (matchRet["stage"] == "vertex")
+            shaderFile.vertex   = shaderFilename;
+    }
+
+    ShaderProgram[string] programs;
+
+    // build each shader program
+    foreach (string name, ref ShaderFile sf; shaderFiles)
+    {
+        enforceOrb(sf.fragment != "", "Missing fragment shader for " ~ name);
+        enforceOrb(sf.vertex != "",   "Missing vertex shader for " ~ name);
+        import orb.utils.logger;
+        infof("Loading shader '%s' (%s, %s)", name, sf.vertex, sf.fragment);
+        programs[name] = loadShaders(readText(sf.vertex),
+                                     readText(sf.fragment));
+    }
+
+    return programs;
+}
+
+ShaderProgram loadShaders(string vertexShaderCode, string fragmentShaderCode)
 {
     //*** Load the shaders ***
     auto program = new ShaderProgram();
 
     try
     {
-        if (geometryShaderCode !is null)
-            program.setShader(ShaderBlock.geometry, geometryShaderCode);
         program.setShader(ShaderBlock.vertex,   vertexShaderCode);
         program.setShader(ShaderBlock.fragment, fragmentShaderCode);
 
@@ -85,7 +128,7 @@ ShaderProgram loadShaders(string fragmentShaderCode,
     }
     catch (ShaderException e)
     {
-        import std.experimental.logger;
+        import orb.utils.logger;
         error("Shader exception. Log:\n%s", e.log);
         throw e;
     }
@@ -290,8 +333,8 @@ private:
 
             mUniforms[nameStr] = Uniform(location, type);
 
-            import std.experimental.logger;
-            infof("Uniform %d (loc=%d): %s %s <Size: %d>",
+            import orb.utils.logger;
+            infof("- Uniform %d (loc=%d): %s %s <Size: %d>",
                   i, location, typeName, nameStr, typeSize);
         }
     }
@@ -321,8 +364,8 @@ private:
 
             mAttribLayout.attributes[nameStr] = Attribute(location, type);
 
-            import std.experimental.logger;
-            infof("Attribute %d (loc=%d): %s %s <Size: %d>",
+            import orb.utils.logger;
+            infof("- Attribute %d (loc=%d): %s %s <Size: %d>",
                   i, location, typeName, nameStr, typeSize);
         }
     }

@@ -1,5 +1,5 @@
-/* ORB - 3D/physics/IA engine
-   Copyright (C) 2015 ClaudeMr
+/* ORB - 3D/physics/AI engine
+   Copyright (C) 2015-2017 Claude
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -23,25 +23,75 @@ public import gfm.math.matrix;
 public import gfm.math.vector;
 
 
-interface IMeshRenderer
+IRenderer[string] initialize(string RndrMod, Args...)(Args args)
 {
-    IMesh createMesh();
-    void setDirLight(vec4f dirLight, vec4f dirColor);
-    void setCamera(Camera camera);
-    void setMesh(in IMesh mesh);
-    void setModelPlacement(mat4f model);
+    enum modulePath = "orb." ~ RndrMod;
+    mixin("import " ~ modulePath ~ " : initialize;");
+    initialize(args);
+
+    import orb.utils.traits : moduleMembers;
+    IRenderer[string] renderers;
+
+    /*static */foreach (a; moduleMembers!("orb.render.renderer", isDerivedRenderer))
+    {
+        enum type = getRendererType!a;
+        renderers[type] = mixin(a).getInstance!(RndrMod, type)();
+    }
+    return renderers;
+}
+
+interface IRenderer
+{
+    static IRenderer getInstance(string RndrMod, string Type)()
+    {
+        enum modulePath = "orb." ~ RndrMod;
+        mixin("import " ~ modulePath ~ ";");
+        enum className = rendererPrefix ~ Type ~ "Renderer";
+        return cast(IRenderer)mixin("new " ~ className);
+    }
+
     void render();
 }
 
+interface IModelRenderer : IRenderer
+{
+    IModelMesh createMesh(in vec3f[] points,
+                          in vec3f[] normals,
+                          in uint[]  indices);
+    void setDirLight(vec4f dirLight, vec4f dirColor);
+    void setCamera(Camera camera);
+    void setMesh(in IModelMesh mesh);
+    void setModelMatrix(mat4f modelMatrix);
+}
 
-interface ITextRenderer
+interface IChunkRenderer : IRenderer
+{
+    IChunkMesh createMesh();
+    void setDirLight(vec4f dirLight, vec4f dirColor);
+    void setCamera(Camera camera);
+    void setMesh(in IChunkMesh mesh, vec3f position);
+}
+
+interface ITextRenderer : IRenderer
 {
     ITextMesh createMesh(in vec2f[] points,
                          in vec2f[] texCoords,
-                         in uint[] indices);
+                         in uint[]  indices);
     void load(in Font font);
     void prepare();
     void enable(in Font font);
-    void render(ITextMesh tm, vec2f position, vec4f color);
+    void setMesh(ITextMesh mesh, vec2f position, vec4f color);
     void unprepare();
 }
+
+
+private template isDerivedRenderer(string name)
+{
+    static if (name == "IRenderer")
+       enum bool isDerivedRenderer = false;
+    else
+       enum bool isDerivedRenderer = mixin("is("~name~" == interface)");
+}
+
+private enum string getRendererType(string RndrI) =
+                                        RndrI[1 .. $ - "Renderer".length];

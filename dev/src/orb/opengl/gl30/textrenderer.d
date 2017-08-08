@@ -1,5 +1,5 @@
-/* ORB - 3D/physics/IA engine
-   Copyright (C) 2015 ClaudeMr
+/* ORB - 3D/physics/AI engine
+   Copyright (C) 2015-2017 Claude
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -28,9 +28,11 @@ import derelict.opengl3.gl3;
 class Gl30TextRenderer : ITextRenderer
 {
 public:
-    this(string vertexShaderCode, string fragmentShaderCode)
+    this()
     {
-        mProgram = loadShaders(fragmentShaderCode, vertexShaderCode);
+        import orb.opengl.gl30.programs : opengl30Programs;
+        enforceOrb("text" in opengl30Programs, "No text shaders");
+        mProgram = opengl30Programs["text"];
     }
 
     ~this()
@@ -78,19 +80,20 @@ public:
         glBindTexture(GL_TEXTURE_2D, mTexPerFont[font].glId);
     }
 
-    void render(ITextMesh tm, vec2f position, vec4f color)
+    void setMesh(ITextMesh mesh, vec2f position, vec4f color)
     {
-        auto gl30tm = cast(Gl30TextMesh)tm;
-
+        auto mMesh = cast(Gl30TextMesh)mesh;
         mProgram.uniforms.position = position;
         // Discard alpha component of color at the moment...
         mProgram.uniforms.color = vec3f(color.r, color.g, color.b);
-        gl30tm.vao.bind();
+    }
 
-        glDrawElements(GL_TRIANGLES, cast(GLsizei)gl30tm.vboIndices.length,
-                       gl30tm.vboIndices.glElementType, null);
-
-        gl30tm.vao.unbind();
+    void render()
+    {
+        mMesh.vao.bind();
+        glDrawElements(GL_TRIANGLES, cast(GLsizei)mMesh.vboIndices.length,
+                       mMesh.vboIndices.glElementType, null);
+        mMesh.vao.unbind();
 
     }
 
@@ -103,4 +106,5 @@ public:
 private:
     ShaderProgram       mProgram;
     Texture[const Font] mTexPerFont;
+    Gl30TextMesh        mMesh;
 }

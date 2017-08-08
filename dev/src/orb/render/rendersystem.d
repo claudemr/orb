@@ -1,5 +1,5 @@
-/* ORB - 3D/physics/IA engine
-   Copyright (C) 2015 ClaudeMr
+/* ORB - 3D/physics/AI engine
+   Copyright (C) 2015-2017 Claude
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@ public import orb.utils.singleton;
 public import entitysysd;
 
 import orb.event;
+import orb.gui.guielement;
 import orb.utils.exception;
 import derelict.opengl3.gl3;
 import derelict.sdl2.sdl;
@@ -34,12 +35,13 @@ class RenderSystem : System, IReceiver!InputRegistrationEvent
     mixin Singleton;
 
 public:
-    this()
+    this()()
     {
         // Load the SDL 2 library
         DerelictSDL2.load();
         scope(failure) DerelictSDL2.unload();
 
+        //todo make those calls dependant on StrRenderer
         // Load OpenGL versions 1.0 and 1.1.
         DerelictGL3.load();
         scope(failure) DerelictGL3.unload();
@@ -47,6 +49,8 @@ public:
         // Load the SDL2_image library
         DerelictSDL2Image.load();
         scope(failure) DerelictSDL2Image.unload();
+
+        mGui.init();
     }
 
     ~this()
@@ -54,6 +58,13 @@ public:
         DerelictSDL2Image.unload();
         DerelictGL3.unload();
         DerelictSDL2.unload();
+
+        mGui.shutdown();
+    }
+
+    static void lookupRenderers(string RndrMod, Args...)(Args args)
+    {
+        mRenderers = initialize!RndrMod(args);
     }
 
     auto createWindow(string title,
@@ -64,6 +75,27 @@ public:
         mWin = new Window(title, posX, posY, width, height, backgroundColor);
         return mWin;
     }
+
+    void insert(TGui : IGuiElement)(TGui gui/*,
+                      vec2f pos = vec2f(0, 0)*/)
+    {
+        mGui.insert(null, cast(IGuiElement)gui, vec2f(0, 0)/*pos*/);
+    }
+
+    void remove(IGuiElement gui)
+    {
+        mGui.remove(gui);
+    }
+
+    static auto renderer(string Rndr)() @property
+    {
+        import std.format : format;
+        mixin(q{
+            return cast(I%sRenderer)mRenderers["%s"];
+        }.format(Rndr, Rndr));
+    }
+
+protected:
 
     override void prepare(EntityManager es, EventManager events, Duration dt)
     {
@@ -81,11 +113,11 @@ public:
         // todo: only one render target at the moment
         RenderTarget target = mWin;
 
-        // move entities around
-        // todo
-
-        // render the meshes
-        target.update();
+        // render all gui elements
+        foreach (guiChild; mGui[])
+        {
+            guiChild.element.render(guiChild.position);
+        }
     }
 
     override void unprepare(EntityManager es, EventManager events, Duration dt)
@@ -98,30 +130,10 @@ public:
         mInputEnabled = event.enabled;
     }
 
-    static void renderer(D, R)(R rndr) @property
-    {
-        static if (is(D : IMesh))
-            mMeshRenderer = rndr;
-        else static if (is(D : ITextMesh))
-            mTextRenderer = rndr;
-        else
-            static assert(false, "Unknown data type");
-    }
-
-    static auto renderer(D)() @property
-    {
-        static if (is(D : IMesh))
-            return mMeshRenderer;
-        else static if (is(D : ITextMesh))
-            return mTextRenderer;
-        else
-            static assert(false, "Unknown data type");
-    }
-
 private:
-    Window       mWin;    // single default window/target.
-    bool         mInputEnabled;
+    Window      mWin;    // single default window/target.
+    bool        mInputEnabled;
+    GuiFamily   mGui;
 
-    static IMeshRenderer   mMeshRenderer;
-    static ITextRenderer   mTextRenderer;
+    static IRenderer[string] mRenderers;
 }

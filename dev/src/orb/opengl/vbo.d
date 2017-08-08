@@ -1,5 +1,5 @@
-/* ORB - 3D/physics/IA engine
-   Copyright (C) 2015 ClaudeMr
+/* ORB - 3D/physics/AI engine
+   Copyright (C) 2015-2017 Claude
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -20,7 +20,6 @@ import orb.opengl.utils;
 import orb.utils.exception;
 import gfm.math.vector;
 import derelict.opengl3.gl3;
-import std.stdio;
 import std.string;
 import std.traits;
 

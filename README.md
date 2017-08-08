@@ -1,7 +1,13 @@
 ORB
 ===
 
-3D engine work to display voxelized planets.
+Game based on a 3D engine:
+- Sandbox game on a round planet.
+- Smooth voxel terrain.
+- As much procedural rendering as possible (textures, terrain features, entities).
+- Physics engine: gravity, drag, collision detection.
+- Multiplayer.
+- AI, villager behavior.
 
 Programming language: **D**
 
@@ -31,21 +37,6 @@ sudo apt-get install libsdl2-2.0-0 libsdl2-gfx-1.0-0 libsdl2-image-2.0-0 libsdl2
 D resources
 -----------
 
-DMD compiler:
+DMD compiler and build tools (dub):
 > http://dlang.org/download.html
 
-DUB build tool, package manager:
-> http://code.dlang.org/about
-
-Install rpm files:
-```
-sudo apt-get install alien dpkg-dev debhelper build-essential
-# For Debian 64-bit
-sudo alien --target=amd64 dub_x.x.x-x_arch.rpm
-# For Debian 32-bit
-sudo alien --target=i386 dub_x.x.x-x_arch.rpm
-sudo alien dub_x.x.x-x_arch.rpm
-sudo dpkg -i dub_x.x.x-x_arch.deb
-```
-
-Or else copy `dub` in `usr/bin`

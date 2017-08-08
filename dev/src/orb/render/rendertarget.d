@@ -1,5 +1,5 @@
-/* ORB - 3D/physics/IA engine
-   Copyright (C) 2015 ClaudeMr
+/* ORB - 3D/physics/AI engine
+   Copyright (C) 2015-2017 Claude
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -23,6 +23,8 @@ public import orb.render.viewport;
  * The render-target is a frame-buffer of some sort receiving the 2-D rendering.
  * It may be a window or a texture.
  */
+//todo it is not used much currently, we have to find a purose, maybe when we
+// will be using FBO's?
 abstract class RenderTarget
 {
 public:
@@ -44,38 +46,10 @@ public:
         return mHeight;
     }
 
-    // todo we may have to be able to attach several viewports if we want to
-    // handle HUD.
-    void attach(Viewport viewport)
-    {
-        mViewport = viewport;
-    }
-
-    void attach(Canvas canvas)
-    {
-        mCanvas = canvas;
-    }
-
-    void update()
-    {
-        // xxx Circular dependency, maybe rendertarget should be on its own,
-        //     and canvas and viewport should depend on it.
-        //     This has to be worked out when implementing FBO's.
-
-        // todo fill background
-        if (mViewport !is null)
-            mViewport.render();
-        //todo probably clear depth frame
-        if (mCanvas !is null)
-            mCanvas.render();
-    }
-
 private:
     string      mTitle;
     uint        mWidth;
     uint        mHeight;
     vec4f       mBackgroundColor;
-    Viewport    mViewport;
-    Canvas      mCanvas;
 }
 

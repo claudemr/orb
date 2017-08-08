@@ -1,5 +1,5 @@
-/* ORB - 3D/physics/IA engine
-   Copyright (C) 2015 ClaudeMr
+/* ORB - 3D/physics/AI engine
+   Copyright (C) 2015-2017 Claude
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -26,8 +26,6 @@ import orb.text.text;
 import std.ascii;
 import std.exception;
 import std.math : floor, ceil;
-
-    import std.stdio;
 
 
 enum AlignmentH
@@ -91,7 +89,7 @@ class GuiText : GuiElement
 public:
     this(string text,
          in Font font, float fontSize,
-         vec2f pos, vec2f size,
+         vec2f size,
          Flag!"Wrap" wrapped = No.Wrap,
          AlignmentH alignmentH = AlignmentH.left,
          AlignmentV alignmentV = AlignmentV.top)
@@ -102,7 +100,6 @@ public:
         mStr        = text.idup;
         mFont       = font;
         mFontSize   = fontSize / mFont.size;    // normalized
-        mPosition   = pos;
         mSize       = size;
         mWrapped    = wrapped;
         mAlignmentH = alignmentH;
@@ -111,9 +108,9 @@ public:
         // Build the text layout, the vertices and the texture coordinates
         buildTextLayout();
 
-        mTextMesh = RenderSystem.renderer!ITextMesh.createMesh(mVertices,
-                                                               mTexCoords,
-                                                               mIndices);
+        mTextMesh = RenderSystem.renderer!"Text".createMesh(mVertices,
+                                                            mTexCoords,
+                                                            mIndices);
     }
 
     ~this()
@@ -136,10 +133,11 @@ public:
         return mFont;
     }
 
-    override void render()
+    void render(vec2f pos)
     {
-        auto textRndr = RenderSystem.renderer!ITextMesh;
-        textRndr.render(mTextMesh, mPosition, mColor);
+        auto textRndr = RenderSystem.renderer!"Text";
+        textRndr.setMesh(mTextMesh, pos, mColor);
+        textRndr.render();
 
         /*GL30.glBindVertexArray(text.getMesh());
         GL20.glEnableVertexAttribArray(0);
@@ -245,9 +243,6 @@ private:
         lineY0 = (y0 + yPreOffset) * mFontSize + yPostOffset;
         lineY1 = (y1 + yPreOffset) * mFontSize + yPostOffset;
 
-        /*writefln("isVisible line %d,%d %3.3f,%3.3f",
-            y0, y1, lineY0, lineY1);*/
-
         // Totally outside the box
         if (lineY1 < 0 || lineY0 > mSize.y)
             return false;
@@ -293,9 +288,6 @@ private:
         lineX0 = (x0 + xPreOffset) * mFontSize + xPostOffset;
         lineX1 = (x1 + xPreOffset) * mFontSize + xPostOffset;
 
-        /*writefln("isVisible span %d,%d %3.3f,%3.3f",
-            x0, x1, lineX0, lineX1);*/
-
         // Totally outside the box
         if (lineX1 < 0 || lineX0 > mSize.x)
             return false;
@@ -316,9 +308,6 @@ private:
 
         lineX0 = (x0 + xPreOffset) * mFontSize + xPostOffset;
         lineX1 = (x1 + xPreOffset) * mFontSize + xPostOffset;
-
-        /*writefln("isVisible '%c' %d,%d %3.3f,%3.3f",
-            chrPtr.id, x0, x1, lineX0, lineX1);*/
 
         // Totally outside the box
         if (lineX1 < 0 || lineX0 > mSize.x)
@@ -343,10 +332,6 @@ private:
     {
         int x0, x1, y0, y1;
         int texX0, texX1, texY0, texY1;
-
-        /*writefln("Make '%c'(%d) x=%d y=%d (%d,%d) (%d,%d)",
-            chrPtr.id, cast(int)chrPtr.id, x, y,
-            truncLf, truncRg, truncTop, truncBot);*/
 
         x0 = x + chrPtr.xoffset + truncLf;
         x1 = x + chrPtr.xoffset + chrPtr.width - truncRg;
@@ -382,7 +367,6 @@ private:
 
     void insertVertex(float x0, float y0, float x1, float y1)
     {
-        //writefln("    (%3.3f %3.3f) (%3.3f %3.3f)", x0, y0, x1, y1);
         mVertices ~= vec2f(x0, y0);
         mVertices ~= vec2f(x0, y1);
         mVertices ~= vec2f(x1, y1);
@@ -391,9 +375,7 @@ private:
 
     void insertTexCoord(float x0, float y0, float x1, float y1)
     {
-        //writefln("    (%d %d) (%d %d)", x0, y0, x1, y1);
-        //xxx dlib is not const friendly
-        auto atlas = cast(FontAtlas)mFont.atlas;
+        auto atlas = mFont.atlas;
         float w = atlas.width, h = atlas.height;
         mTexCoords ~= vec2f(x0 / w, y0 / h);
         mTexCoords ~= vec2f(x0 / w, y1 / h);
@@ -413,7 +395,6 @@ private:
         mIndices ~= idx + 2;
         mIndices ~= idx + 3;
         mIndices ~= idx + 0;
-        //writeln("    " ~ mIndices[$-6 .. $]);
     }
 
     string      mStr;

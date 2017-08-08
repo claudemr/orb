@@ -1,5 +1,5 @@
-/* ORB - 3D/physics/IA engine
-   Copyright (C) 2015 ClaudeMr
+/* ORB - 3D/physics/AI engine
+   Copyright (C) 2015-2017 Claude
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -24,10 +24,8 @@ import std.array;
 import std.ascii;
 import std.conv;
 import std.exception;
-import std.experimental.logger;
 import std.file;
 import std.range;
-import std.stdio;
 import std.string;
 
 // It uses Hiero: https://github.com/libgdx/libgdx/wiki/Hiero
@@ -90,6 +88,9 @@ class Font
 public:
     this(string filename)
     {
+        import orb.utils.logger;
+        import std.stdio : File;
+
         // Open file
         File fntFile;
         auto fileExc = collectException(File(filename, "r"), fntFile);

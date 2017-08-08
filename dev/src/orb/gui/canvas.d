@@ -1,5 +1,5 @@
-/* ORB - 3D/physics/IA engine
-   Copyright (C) 2015 ClaudeMr
+/* ORB - 3D/physics/AI engine
+   Copyright (C) 2015-2017 Claude
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -25,27 +25,29 @@ import orb.render.rendersystem;
  * This handles all the organization of the rendering of GUI elements onto a
  * RenderTarget.
  */
-class Canvas
+final class Canvas : GuiElement
 {
 public:
-    void attach(GuiText gui)
+
+    void insert(GuiText gui, vec2f pos)
     {
         mGui = cast(IGuiElement)gui;
 
         auto font = gui.font;
         mTextsPerFont[font] ~= gui;
+        mPos = pos;
     }
 
-    void render()
+    void render(vec2f pos)
     {
         //todo only render text at the moment... buttons etc, later.
-        renderText();
+        renderText(pos);
     }
 
 private:
-    void renderText()
+    void renderText(vec2f pos)
     {
-        auto textRndr = RenderSystem.renderer!ITextMesh;
+        auto textRndr = RenderSystem.renderer!"Text";
 
         textRndr.prepare();
 
@@ -53,12 +55,13 @@ private:
         {
             textRndr.enable(font);
             foreach (text; texts)
-                text.render();
+                text.render(pos + mPos);
         }
 
         textRndr.unprepare();
     }
 
     IGuiElement           mGui;
+    vec2f                 mPos;
     GuiText[][const Font] mTextsPerFont;
 }

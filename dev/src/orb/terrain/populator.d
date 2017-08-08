@@ -19,7 +19,8 @@ public:
         import orb.utils.math : sqrt;
         import orb.utils.noise : noise;
         auto p = vec3f(x, y, z) - mCenter;
-        return (sqrt(p.squaredLength) - mRadius) + noise(x/40.0f, y/40.0f, z/40.0f) * 5;
+        return sqrt(p.squaredLength) - mRadius +
+               noise(x/40.0f, y/40.0f, z/40.0f) * 5;
     }
 
 private:

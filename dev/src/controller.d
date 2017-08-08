@@ -1,13 +1,28 @@
+/* ORB - 3D/physics/AI engine
+   Copyright (C) 2015-2017 Claude
+
+   This program is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   any later version.
+
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program. If not, see <http://www.gnu.org/licenses/>. */
+
 module controller;
 
-import orb.capture;
+public import orb.capture;
 import orb.engine;
 import std.math : PI;
-import std.stdio;
 
 
 class Controller : System,
-                   IStateEvent, IKeyEvent, IMouseMotionEvent,
+                   IStateEvent, IKeyEvent, IMouseMotionEvent, IMouseButtonEvent,
                    IReceiver!StatEvent
 {
 public:
@@ -38,6 +53,7 @@ public:
     void receive(KeyCode code, MouseButton button, bool state,
                  EventManager events, Duration dt)
     {
+        import orb.utils.logger;
         switch (code)
         {
         case KeyCode.ESCAPE:    // catch mouse
@@ -47,13 +63,13 @@ public:
         case KeyCode.F11:       // playback input
             if (mCapture.state == State.idle && !state)
             {
-                writefln("Playback start");
+                info("Playback start");
                 unbindMovement();
                 mCapture.startPlayback();
             }
             else if (mCapture.state == State.playback && state)
             {
-                writefln("Playback stop");
+                info("Playback stop");
                 bindMovement();
                 mCapture.stopPlayback();
             }
@@ -62,12 +78,12 @@ public:
         case KeyCode.F12:       // capture input
             if (mCapture.state == State.idle && !state)
             {
-                writefln("Capture start");
+                info("Capture start");
                 mCapture.startCapture();
             }
             else if (mCapture.state == State.capture && state)
             {
-                writefln("Capture stop");
+                info("Capture stop");
                 mCapture.stopCapture();
             }
             break;
@@ -157,6 +173,14 @@ public:
         }
     }
 
+    void receive(MouseButton button,
+                 bool pressed, int nbClicks, vec2i pos,
+                 EventManager events, Duration dt)
+    {
+        if (pressed)
+            events.emit!LaunchEvent();
+    }
+
     void receive(vec2i pos, vec2i motion,
                  BitFlags!MouseButton buttonFlags,
                  EventManager events, Duration dt)
@@ -209,17 +233,18 @@ public:
     // Display stat
     void receive(StatEvent event)
     {
+        import orb.utils.logger;
         auto systems = event.systemManager;
-        writefln("All: %dµs (%d|%d)",
-                 systems.statAll.average.total!"usecs",
-                 systems.statAll.min.total!"usecs",
-                 systems.statAll.max.total!"usecs");
+        infof("All: %dµs (%d|%d)",
+              systems.statAll.average.total!"usecs",
+              systems.statAll.min.total!"usecs",
+              systems.statAll.max.total!"usecs");
         foreach (sys; systems[])
-            writefln("    - %s: %dµs (%d|%d)",
-                     sys.name,
-                     sys.stat.average.total!"usecs",
-                     sys.stat.min.total!"usecs",
-                     sys.stat.max.total!"usecs");
+            infof("    - %s: %dµs (%d|%d)",
+                  sys.name,
+                  sys.stat.average.total!"usecs",
+                  sys.stat.min.total!"usecs",
+                  sys.stat.max.total!"usecs");
     }
 
 private:
@@ -235,6 +260,7 @@ private:
         mInputSys.bind(cast(IKeyEvent)this,   KeyCode.C);
 
         mInputSys.bind(cast(IMouseMotionEvent)this);
+        mInputSys.bind(cast(IMouseButtonEvent)this, MouseButton.left);
     }
 
     void unbindMovement()
@@ -249,6 +275,7 @@ private:
         mInputSys.unbind(cast(IKeyEvent)this,   KeyCode.C);
 
         mInputSys.unbind(cast(IMouseMotionEvent)this);
+        mInputSys.unbind(cast(IMouseButtonEvent)this, MouseButton.left);
     }
 
     InputSystem mInputSys;

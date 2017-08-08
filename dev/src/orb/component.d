@@ -14,38 +14,28 @@
    You should have received a copy of the GNU General Public License
    along with this program. If not, see <http://www.gnu.org/licenses/>. */
 
-module orb.event;
+module orb.component;
 
-public import orb.terrain.terrain;
-public import orb.scene.camera;
 public import entitysysd;
+public import gfm.math.vector;
 
-//todo, a bit dodgy, remove that
-@event struct InputRegistrationEvent
+@component struct Position
 {
-    bool enabled;
+    vec3f pos;
 }
 
-@event struct CameraUpdatedEvent
+@component struct Velocity
 {
-    Camera oldCamera;
-    Camera newCamera;
+    bool  moving;
+    vec3f velocity; // unit: m/s
 }
 
-@event struct MovementEvent
+@component struct Mass
 {
-    vec3f movement;
-    vec3f orientation;
-    bool  movementUpdated;
-    bool  orientationUpdated;
+    float mass;     // Mass of the entity (unit: kg), subject to gravity
 }
 
-@event struct LaunchEvent
+@component struct Collidable
 {
-}
-
-@event struct SpawnEvent
-{
-    vec3f position;
-    vec3f velocity;
+    vec3f prevPos;
 }

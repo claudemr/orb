@@ -14,38 +14,8 @@
    You should have received a copy of the GNU General Public License
    along with this program. If not, see <http://www.gnu.org/licenses/>. */
 
-module orb.event;
+module orb.opengl.gl30.programs;
 
-public import orb.terrain.terrain;
-public import orb.scene.camera;
-public import entitysysd;
+public import orb.opengl.shader;
 
-//todo, a bit dodgy, remove that
-@event struct InputRegistrationEvent
-{
-    bool enabled;
-}
-
-@event struct CameraUpdatedEvent
-{
-    Camera oldCamera;
-    Camera newCamera;
-}
-
-@event struct MovementEvent
-{
-    vec3f movement;
-    vec3f orientation;
-    bool  movementUpdated;
-    bool  orientationUpdated;
-}
-
-@event struct LaunchEvent
-{
-}
-
-@event struct SpawnEvent
-{
-    vec3f position;
-    vec3f velocity;
-}
+ShaderProgram[string] opengl30Programs;

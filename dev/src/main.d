@@ -1,5 +1,5 @@
-/* ORB - 3D/physics/IA engine
-   Copyright (C) 2015 ClaudeMr
+/* ORB - 3D/physics/AI engine
+   Copyright (C) 2015-2017 Claude
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -15,6 +15,7 @@
    along with this program. If not, see <http://www.gnu.org/licenses/>. */
 
 import controller;
+import player;
 import orb.engine;
 
 
@@ -51,8 +52,9 @@ void main()
 {
     enum uint vpWidth   = 640;
     enum uint vpHeight  = 480;
-    enum int  worldSize     = 1024;
-    enum float planetRadius = 500;
+    enum int  worldSize      = 1024;
+    enum float planetRadius  = 500;
+    enum float planetGravity = 9.8;
     static assert(planetRadius * 2 < worldSize);
 
     // ORB Engine init
@@ -60,21 +62,16 @@ void main()
 
     // Renderer init
     auto renderSys = engine.createRenderSystem();
-
     auto win = renderSys.createWindow("Orb",                // title
                                       10, 10,               // position
                                       vpWidth, vpHeight,    // width/height
                                       vec4f(0, 0, 0.4, 1)); // background color
+    // -> orb is launched in orb/dev, which is the current directory
+    renderSys.lookupRenderers!"opengl.gl30"("shader");
 
-    import orb.opengl.gl30.meshrenderer;
-    import orb.opengl.gl30.textrenderer;
-    renderSys.renderer!IMesh = new Gl30MeshRenderer(import("scene_vertex.glsl"),
-                                                    import("scene_fragment.glsl"));
-    renderSys.renderer!ITextMesh = new Gl30TextRenderer(import("text_vertex.glsl"),
-                                                        import("text_fragment.glsl"));
-
-    // Scene/camera preparation
+    // Scene/terrain/camera preparation
     auto scene = engine.createScene();
+    scene.createTerrain(worldSize, planetRadius, planetGravity);
 
     auto camera = scene.createCamera();
     camera.position = vec3f(worldSize/2,
@@ -84,41 +81,41 @@ void main()
     camera.ratio = cast(float)vpWidth / vpHeight;
     camera.near  = 0.1;
     camera.far   = 40.0;
-
     camera.lookAt(vec3f(worldSize/2, worldSize/2, worldSize/2));
+
+    engine.activate(camera);
 
     // Manage directional light
     auto lightSys = new LightSystem(scene);
     engine.systems.register(lightSys);
 
-    // Generate terrain
-    scene.terrain = new Terrain(worldSize, planetRadius);
-
     // Prepare viewport for the scene, and canvas for the GUI
-    win.attach(new Viewport(scene, camera));
+    renderSys.insert(new Viewport(scene, camera));
 
     /*auto canvas = new Canvas;
-    win.attach(canvas);
+    renderSys.insert(canvas);
 
     // Load the font and make a text
     auto font = new Font("font/ubuntu_mono.fnt");
     renderSys.renderer!ITextMesh.load(font);
 
     auto text = new GuiText("Hello world!", font, 0.1,
-                            vec2f(0.25f, 0.25f), vec2f(0.5f, 0.5f),
+                            vec2f(0.5f, 0.5f),
                             Yes.Wrap, AlignmentH.left, AlignmentV.top);
     text.color = vec4f(0.8, 0.5, 0.1, 1.0);
-    canvas.attach(text);*/
+    canvas.insert(text, vec2f(0.25f, 0.25f));*/
 
     // Input management
     auto controller = new Controller(engine.createInputSystem(win));
     engine.systems.register(controller);
+
+    // Player management
+    auto player = new Player(camera, engine.events);
+    engine.systems.register(player);
 
     // Run main loop
     while (!win.stopping())
     {
         engine.run();
     }
-    // http://gameprogrammingpatterns.com/game-loop.html
-    // http://entropyinteractive.com/2011/02/game-engine-design-the-game-loop/
 }

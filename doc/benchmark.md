@@ -38,10 +38,21 @@ Detected OpenGL:
 Benchmarks
 ==========
 
-Tag: v0.2.0-dev13
+Tag: v0.2.14
 
 Comments
 --------
+
+During the terrain rendering in the Viewport class, every chunk is checked for visibility against the camera view cone. If it is outside, the chunk is not rendered.
+
+That obvious optimization makes the rendering part twice as fast in average.
+Before:
+    - RenderSystem@4480: 2093µs (794|3656)
+After:
+    - RenderSystem@5480: 1082µs (486|2018)
+
+
+Previous notes:
 
 Smooth voxels are successfully now implemented.
 
@@ -49,7 +60,6 @@ However, as expected, the meshing layer takes 2.5x as much time as before.
 
 The IMesh interface has been changed so we can add vertices and faces one by one, but this could be improved a lot. Some architecture rework could be done as well in the chunk buildMesh() (quite big now).
 
-Previous notes:
 We can also use a chunk size of 32, so the ratio between face voxels and the whole chunk voxels is lower (and so is the populating redundancy).
 
 The unloading could also be improved.

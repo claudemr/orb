@@ -1,5 +1,5 @@
-/* ORB - 3D/physics/IA engine
-   Copyright (C) 2015 ClaudeMr
+/* ORB - 3D/physics/AI engine
+   Copyright (C) 2015-2017 Claude
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -35,6 +35,7 @@ public:
         mVboPoints    = new Vbo;
         mVboTexCoords = new Vbo;
         mVboIndices   = new Vbo;
+        mVao          = new Vao;
 
         mVboPoints.set(BufType.ARRAY,
                        Access.STATIC,
@@ -49,7 +50,6 @@ public:
                         Nature.DRAW,
                         indices);
 
-        mVao = new Vao;
         mVao.bind();
         attrLayout.enable("vertexPos2d");
         attrLayout.enable("vertexTexCoord2d");

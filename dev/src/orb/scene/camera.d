@@ -1,5 +1,5 @@
-/* ORB - 3D/physics/IA engine
-   Copyright (C) 2015 ClaudeMr
+/* ORB - 3D/physics/AI engine
+   Copyright (C) 2015-2017 Claude
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -21,8 +21,6 @@ public import gfm.math.vector;
 
 import gfm.math.quaternion;
 
-//todo: Remove matrices from the class, it should be built everytime its is
-//      requested and be saved by the user.
 
 private quatf quaternionFromAxis(vec3f f, vec3f r, vec3f u)
 pure @safe
@@ -79,7 +77,7 @@ pure @safe:
 
     this()
     {
-        mPos   = [0.0f, 0.0f, 0.0f];
+        mPosition = [0.0f, 0.0f, 0.0f];
         mFront = [0.0f, 0.0f, -1.0f];
         mRight = [1.0f, 0.0f, 0.0f];
         mUp    = [0.0f, 1.0f, 0.0f];
@@ -89,6 +87,15 @@ pure @safe:
         mFar   = 100.0;
         mQOrientation   = quatf.identity();
         mMatrixViewDone = mMatrixProjDone = mMatrixViewProjDone = false;
+    }
+
+    Camera dup() @property
+    {
+        import std.traits : FieldNameTuple;
+        auto cam = new Camera;
+        /*static*/ foreach (name; FieldNameTuple!Camera)
+            mixin("cam."~name~" = "~name~";");
+        return cam;
     }
 
     /**
@@ -119,9 +126,9 @@ pure @safe:
         mUp    =  vec3f(mMatrixView.rows[1].v[0..3]);
         mFront = -vec3f(mMatrixView.rows[2].v[0..3]);
 
-        mMatrixView.c[0][3] = -dot(mRight, mPos);
-        mMatrixView.c[1][3] = -dot(mUp,    mPos);
-        mMatrixView.c[2][3] =  dot(mFront, mPos);
+        mMatrixView.c[0][3] = -dot(mRight, mPosition);
+        mMatrixView.c[1][3] = -dot(mUp,    mPosition);
+        mMatrixView.c[2][3] =  dot(mFront, mPosition);
 
         mMatrixViewDone     = true;
         mMatrixViewProjDone = false;
@@ -136,21 +143,21 @@ pure @safe:
     {
         if (forward != 0.0f)
         {
-            mPos.x += forward * mFront.x;
-            mPos.y += forward * mFront.y;
-            mPos.z += forward * mFront.z;
+            mPosition.x += forward * mFront.x;
+            mPosition.y += forward * mFront.y;
+            mPosition.z += forward * mFront.z;
         }
         if (rstrafe != 0.0f)
         {
-            mPos.x += rstrafe * mRight.x;
-            mPos.y += rstrafe * mRight.y;
-            mPos.z += rstrafe * mRight.z;
+            mPosition.x += rstrafe * mRight.x;
+            mPosition.y += rstrafe * mRight.y;
+            mPosition.z += rstrafe * mRight.z;
         }
         if (up != 0.0f)
         {
-            mPos.x += up * mUp.x;
-            mPos.y += up * mUp.y;
-            mPos.z += up * mUp.z;
+            mPosition.x += up * mUp.x;
+            mPosition.y += up * mUp.y;
+            mPosition.z += up * mUp.z;
         }
 
         vec3f x, y;
@@ -158,9 +165,9 @@ pure @safe:
         x = -mRight;
         y = -mUp;
 
-        mMatrixView.c[0][3] = dot(mPos, x);
-        mMatrixView.c[1][3] = dot(mPos, y);
-        mMatrixView.c[2][3] = dot(mPos, mFront);
+        mMatrixView.c[0][3] = dot(mPosition, x);
+        mMatrixView.c[1][3] = dot(mPosition, y);
+        mMatrixView.c[2][3] = dot(mPosition, mFront);
 
         mMatrixViewDone     = true;
         mMatrixViewProjDone = false;
@@ -179,7 +186,7 @@ pure @safe:
             mUp = vec3f(0.0f, 1.0f, 0.0f);
 
         vec3f f, u, s;
-        f = (targetPoint - mPos).normalized;
+        f = (targetPoint - mPosition).normalized;
 
         if (isAlmostZero(mRight))
         {
@@ -201,6 +208,34 @@ pure @safe:
         mQOrientation = quaternionFromAxis(f, s, u);
 
         buildMatrixView();
+    }
+
+    /**
+     * Tells whether a point is within the camera view cone.
+     */
+    bool isVisible(vec3f p)
+    {
+        import std.math : cos, sin;
+        vec3f posView = p - mPosition;
+        // Is it behind/beyond the camera? (near/far check)
+        float d = dot(posView, mFront);
+        if (d < mNear || d > mFar)
+            return false;
+
+        vec3f f = -mFront * sin(mFov);
+        vec3f s = mRight * cos(mFov) * mRatio / 2;
+        vec3f u = mUp    * cos(mFov) / mRatio / 2;
+
+        if (dot(posView, f + s) > 0)
+            return false;
+        if (dot(posView, f - s) > 0)
+            return false;
+        if (dot(posView, f + u) > 0)
+            return false;
+        if (dot(posView, f - u) > 0)
+            return false;
+
+        return true;
     }
 
     //*** Getter methods
@@ -239,33 +274,26 @@ pure @safe:
         return mMatrixViewProj;
     }
 
-    //*** Setter methods
-
-    mixin template opAssign(alias field, alias boolDone)
+    //*** Setter/getter methods
+    void opDispatch(string name, T)(auto ref T param)
     {
-        void opAssign(T)(auto in ref T param) @property
-        {
-            field = param;
-            boolDone = false;
-            mMatrixViewProjDone = false;
-        }
-
-        //xxx do better, can we get rid of the "()"?
-        auto opCall() @property
-        {
-            return field;
-        }
+        import std.ascii : toUpper;
+        enum string fieldName = "m" ~ name[0].toUpper ~ name[1..$];
+        mixin(fieldName) = param;
+        import std.algorithm.searching : canFind;
+        static if (canFind(["fov", "ratio", "near", "far"], name))
+            mMatrixProjDone = false;
+        else
+            mMatrixViewDone = false;
+        mMatrixViewProjDone = false;
     }
 
-    mixin opAssign!(mPos,   mMatrixViewDone) position;
-    mixin opAssign!(mFront, mMatrixViewDone) front;
-    mixin opAssign!(mRight, mMatrixViewDone) right;
-    mixin opAssign!(mUp,    mMatrixViewDone) up;
-    mixin opAssign!(mFov,   mMatrixProjDone) fov;
-    mixin opAssign!(mRatio, mMatrixProjDone) ratio;
-    mixin opAssign!(mNear,  mMatrixProjDone) near;
-    mixin opAssign!(mFar,   mMatrixProjDone) far;
-
+    auto opDispatch(string name)()
+    {
+        import std.ascii : toUpper;
+        enum string fieldName = "m" ~ name[0].toUpper ~ name[1..$];
+        return mixin(fieldName);
+    }
 
 private:
     void buildMatrixView() pure @safe
@@ -279,15 +307,15 @@ private:
         mMatrixView.c[2][0] = -mFront.x;
         mMatrixView.c[2][1] = -mFront.y;
         mMatrixView.c[2][2] = -mFront.z;
-        mMatrixView.c[0][3] = -dot(mRight, mPos);
-        mMatrixView.c[1][3] = -dot(mUp,    mPos);
-        mMatrixView.c[2][3] =  dot(mFront, mPos);
+        mMatrixView.c[0][3] = -dot(mRight, mPosition);
+        mMatrixView.c[1][3] = -dot(mUp,    mPosition);
+        mMatrixView.c[2][3] =  dot(mFront, mPosition);
 
         mMatrixViewDone     = true;
         mMatrixViewProjDone = false;
     }
 
-    vec3f mPos, mFront, mRight, mUp;
+    vec3f mPosition, mFront, mRight, mUp;
     float mFov, mRatio, mNear, mFar;
     mat4f mMatrixViewProj, mMatrixView, mMatrixProj;
     quatf mQOrientation;

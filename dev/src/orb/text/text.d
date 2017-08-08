@@ -1,5 +1,5 @@
-/* ORB - 3D/physics/IA engine
-   Copyright (C) 2015 ClaudeMr
+/* ORB - 3D/physics/AI engine
+   Copyright (C) 2015-2017 Claude
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -227,8 +227,10 @@ struct Text
             default:
                 assert(false);
             }
-            /*writefln("Line nb=%d nbWord=%d nbSpan=%d width=%d cursor=%d nbChar=%d hasWrapped=%d", nbLine, line.nbWord, line.nbSpan, line.width, line.cursor, line.nbChar, line.hasWrapped);
-            writefln("  Span Type=%s str=\"%s\" width=%d cursor=%d nbChar=%d hasWrapped=%d", span.type, span.str, span.width, span.cursor, span.nbChar, span.hasWrapped);*/
+            /*
+            import orb.utils.logger;
+            tracef("Line nb=%d nbWord=%d nbSpan=%d width=%d cursor=%d nbChar=%d hasWrapped=%d", nbLine, line.nbWord, line.nbSpan, line.width, line.cursor, line.nbChar, line.hasWrapped);
+            tracef("  Span Type=%s str=\"%s\" width=%d cursor=%d nbChar=%d hasWrapped=%d", span.type, span.str, span.width, span.cursor, span.nbChar, span.hasWrapped);*/
         }
     }
 
@@ -257,26 +259,3 @@ struct Text
     uint     nbLine;
     uint     height;
 }
-
-
-/+unittest
-{
-    import std.stdio;
-
-    auto font = new Font("font/ubuntu_mono.fnt");
-
-    auto text = Text("Hello world!\nGoodbye now...", font, 60/*uint.max*/);
-
-    foreach (line; TextLineRange(text.lines))
-    {
-        foreach (span; TextSpanRange(line))
-        {
-            if (span.type == Type.word)
-                write(span.str);
-            else
-                foreach (c; span.str)
-                    write(' ');
-        }
-        writef("%d\n", line.wrapped);
-    }
-}+/

@@ -14,38 +14,21 @@
    You should have received a copy of the GNU General Public License
    along with this program. If not, see <http://www.gnu.org/licenses/>. */
 
-module orb.event;
+module orb.opengl.gl30;
 
-public import orb.terrain.terrain;
-public import orb.scene.camera;
-public import entitysysd;
+public import orb.opengl.gl30.chunkmesh;
+public import orb.opengl.gl30.chunkrenderer;
+public import orb.opengl.gl30.modelmesh;
+public import orb.opengl.gl30.modelrenderer;
+public import orb.opengl.gl30.textmesh;
+public import orb.opengl.gl30.textrenderer;
 
-//todo, a bit dodgy, remove that
-@event struct InputRegistrationEvent
+
+enum string rendererPrefix = "Gl30";
+
+void initialize(string shadersPath)
 {
-    bool enabled;
-}
-
-@event struct CameraUpdatedEvent
-{
-    Camera oldCamera;
-    Camera newCamera;
-}
-
-@event struct MovementEvent
-{
-    vec3f movement;
-    vec3f orientation;
-    bool  movementUpdated;
-    bool  orientationUpdated;
-}
-
-@event struct LaunchEvent
-{
-}
-
-@event struct SpawnEvent
-{
-    vec3f position;
-    vec3f velocity;
+    import orb.opengl.gl30.programs : opengl30Programs;
+    import orb.opengl.shader : lookupShaders;
+    opengl30Programs = lookupShaders(shadersPath);
 }

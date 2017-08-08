@@ -1,5 +1,5 @@
-/* ORB - 3D/physics/IA engine
-   Copyright (C) 2015 ClaudeMr
+/* ORB - 3D/physics/AI engine
+   Copyright (C) 2015-2017 Claude
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -50,13 +50,14 @@ public:
      * Define a terrain, using a shape generator and the size of the bounding
      * box.
      */
-    this(int size, float planetRadius)
+    this(int size, float planetRadius, float gravity)
     {
         // Make sure size is a multiple of chunkSize
-        mSize = (size + chunkSize - 1) / chunkSize;
-
-        mPopulator = new Populator(vec3f(size/2, size/2, size/2),
-                                   planetRadius);
+        mSize    = (size + chunkSize - 1) / chunkSize;
+        mRadius  = planetRadius;
+        mGravity = gravity;
+        mCenter  = vec3f(size/2, size/2, size/2);
+        mPopulator = new Populator(mCenter, planetRadius);
     }
 
     Chunk loadChunk(vec3i p, ulong mortonId)
@@ -142,6 +143,29 @@ public:
         return mSize;
     }
 
+    float gravity() @property const
+    {
+        return mGravity;
+    }
+
+    float airResistance() @property const
+    {
+        // https://en.wikipedia.org/wiki/Density
+        // In kg/m³, it is actually a density (air at sea level: 1.2) multiplied
+        // by a drag coefficient (here let's take 1.5) and half.
+        return 1.2f * 1.5f * 0.5f;
+    }
+
+    vec3f center() @property const
+    {
+        return mCenter;
+    }
+
+    float radius() @property const
+    {
+        return mRadius;
+    }
+
     uint nbLoadedChunks() @property const
     {
         return cast(uint)mLoadedChunks.length;
@@ -167,7 +191,10 @@ private:
             chunk.loadedNgb.setNgbId(Axis.z, Side.front);
     }
 
-    uint          mSize;  // in chunks
+    uint          mSize;    // in chunks
+    float         mGravity; // in m/s²
+    vec3f         mCenter;
+    float         mRadius;
     Populator     mPopulator;
     Pool!Chunk    mChunkPool;
     Chunk[Morton] mLoadedChunks;

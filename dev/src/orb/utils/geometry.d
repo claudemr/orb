@@ -1,5 +1,5 @@
-/* ORB - 3D/physics/IA engine
-   Copyright (C) 2015 ClaudeMr
+/* ORB - 3D/physics/AI engine
+   Copyright (C) 2015-2017 Claude
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -34,12 +34,13 @@ enum Side
 }
 
 
-bool isAlmostZero(T, int N, float EPS = 1e-3)(Vector!(T, N) v)
+bool isAlmostZero(float Eps = 1e-3, T, int N)(Vector!(T, N) v)
     pure nothrow @safe @nogc
 {
-    foreach (i; 0 .. N)
+    import orb.utils.traits : Iota;
+    /*static */foreach (i; Iota!(0, N))
     {
-        if (v.v[i] < -EPS || v.v[i] > EPS)
+        if (v.v[i] < -Eps || v.v[i] > Eps)
             return false;
     }
     return true;
@@ -260,7 +261,6 @@ uint64_t zorder3d(uint64_t x, uint64_t y, uint64_t z){
 
 unittest
 {
-    //import std.stdio;
     import std.random;
 
     vec3i o, p;
@@ -324,7 +324,7 @@ ulong morton(vec3i p) pure /*nothrow*/ @safe /*@nogc*/ //toString...
 }
 
 /**
- * Aera calculation squared.
+ * Area calculation squared.
  */
 float area2()(auto ref const(vec3f) p0,
               auto ref const(vec3f) p1,

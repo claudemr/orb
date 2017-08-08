@@ -31,9 +31,9 @@ Main goals:
 * Integrate Villagecraft ideas? Implement AI's... Make a proper game anyway...
 
 ORB - Work Progress
-==================
+===================
 
-Step 1 (Testing step) done
+Step 1 (testing step) done
 --------------------------
 
 * Cube drawn with OpenGL3.0 and SDL2.0 with D language, using Derelict binding library.
@@ -47,8 +47,8 @@ Step 1 (Testing step) done
 * Make a "marching-cube" algorithm generator.
 * Implement noise function.
 
-Step 2 (terrain step) in progress
----------------------------------
+Step 2 (terrain step) done
+--------------------------
 
 Done:
 * Implement directional lighting.
@@ -58,46 +58,59 @@ Done:
 * Make proper rendering classes (fairly ready for integrating OpenGL3.3, or maybe Vulkan).
 * Integrate proper fonts.
 * Use some kind of benchmarking to check CPU load.
+* Draw one chunk.
+* Draw several chunks.
+* Optimize chunk rendering (smaller mesh data per chunk).
+* Start optimizing by loading and displaying only the visible chunks (notion rendering distance).
+* Increase rendering distance as much as possible.
+* Make sure cpu load is constant when travelling (bug in octree).
+* Drop BallVoxelIterator, use a list of chunks to load/unload.
+* Get rid of octree (red-black-tree of loaded chunks seems to be the solution).
+* Do proper benchmark: load-chunk, build-mesh, data-structure overheads.
+* Reduce chunk loading by not loading those that are invisible (below ground).
+* Have a circular buffer of chunks.
+* Optimize population time (the Generator class adds a lot of overhead, if I copy the ballGen function math function within Chunk.populate, chunk pop time decreases from 900µs to 600µs).
+* Smooth blocks switching from binary density to a rational one.
+* Launch an entity when clicking mouse left button.
+* Apply gravity to entity (components: mass, velocity, position, collidable).
+* Check entity collision.
 
-Todo:
-* Octree/terrain rendering:
-  1. ~~Draw one chunk.~~
-  2. ~~Draw several chunks.~~
-  3. ~~Optimize chunk rendering (smaller mesh data per chunk).~~
-  4. ~~Start optimizing by loading and displaying only the visible chunks (notion rendering distance).~~
-  5. ~~Increase rendering distance as much as possible.~~
-  6. ~~Make sure cpu load is constant when travelling (bug in octree).~~
-  7. ~~Drop BallVoxelIterator, use a list of chunks to load/unload.~~
-  8. ~~Get rid of octree (red-black-tree of loaded chunks seems to be the solution).~~
-  9. ~~Do proper benchmark: load-chunk, build-mesh, data-structure overheads.~~
-  10. ~~Reduce chunk loading by not loading those that are invisible (below ground).~~
-  11. ~~Have a circular buffer of chunks.~~
+Notes on current state: Ball radius=500Vx (or higher, it's ok), camera depth=40Vx (should be a lot higher). Camera movement speed = 1Vx/frame = 60Vx/s = 216kVx/h (in Minecraft a "sprint"=5.6m/s = 20km/h).
 
-Current state (vx=voxel): Ball radius=500vx (or higher, it's ok), camera depth=40vx (should be a lot higher). Camera movement speed = 1vx/frame = 60vx/s = 216kvx/h (in Minecraft a "sprint"=5.6m/s = 20km/h).
-
-More todo:
-* Terrain rendering optimization:
-  1. Avoid vbo/vao generation, use older unused ones. Same for vertices.
-  2. Optimize population time (the Generator class adds a lot of overhead, if I copy the ballGen function math function within Chunk.populate, chunk pop time decreases from 900µs to 600µs).
-  3. Optimize population time using parallelism on several CPU cores?
-  4. Optimize mesh number of points/normals/indices by using those that are shared across voxels.
-  5. Smooth blocks switching from binary density to a rational one.
-  6. Implement 3D textures.
-* Improve game-loop.
-
-Background work
----------------
-
-* Simple GUI (text/box widgets, KB/mouse control assignment, simple menu, debug toggle).
-* Make a proper noise class (init function to fill the random table, with a seed).
-* Improve terrain generation.
 
 Step 3 (entities/physics)
 -------------------------
 
-* Basic physic engine, collision detection.
-* Can jump, fly.
+Terrain optimization:
+* Avoid vbo/vao generation, use older unused ones. Same for vertices.
+* Optimize population time using OpenCL (check on a new dev-test branch).
+* Optimize mesh time using OpenCL.
+* Optimize mesh size using some way to have longest triangle strips.
+* Implement 3D textures (done on branch dev-test-tesselate).
+* Use different colors for various terrain soils.
+* Implement LOD.
+* Compress terrain features with binary space partitioning, per chunk.
+* Improve LOD so that further entities still have full resolution LOD.
+
+Physics:
+* Implement walking on the ground (first person view).
+* Jump.
 * Have entities moving around.
+* Have tree of elements.
+* Collision of entities with terrain.
+* Collision of entities with themselves.
+
+GUI:
+* Simple GUI (text/box widgets, KB/mouse control assignment, simple menu, debug toggle).
+* Make a proper noise class (init function to fill the random table, with a seed).
+
+Miscellaneous:
+* Improve game-loop.
+* Have an ambient light.
+* Implement sky-box.
+* Have a day/night cycle.
+
+
 
 Step 4 (shadows/lights/rendering)
 ---------------------------------

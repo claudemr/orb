@@ -1,5 +1,5 @@
-/* ORB - 3D/physics/IA engine
-   Copyright (C) 2015 ClaudeMr
+/* ORB - 3D/physics/AI engine
+   Copyright (C) 2015-2017 Claude
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -14,8 +14,9 @@
    You should have received a copy of the GNU General Public License
    along with this program. If not, see <http://www.gnu.org/licenses/>. */
 
-module orb.terrain.terrainsystem;
+module orb.terrain.terrainmanager;
 
+public import orb.scene.camera;
 public import orb.terrain.terrain;
 
 import orb.event;
@@ -23,8 +24,6 @@ import orb.utils.benchmark;
 import orb.utils.ring;
 import std.container.rbtree;
 import std.math;
-
-import std.stdio;
 
 
 alias BmStat = orb.utils.benchmark.Stat;
@@ -56,59 +55,58 @@ private struct ChunkToLoad
     Side  side;       // The chunk to load is on that side of the neighbor
 }
 
+private vec3f clamp(vec3f newPos, vec3f oldPos, uint size)
+{
 
-class TerrainSystem : System, IReceiver!CameraUpdatedEvent, IReceiver!StatEvent
+    template clampCoord(string a, string comp, string lim)
+    {
+        import std.format;
+        enum string clampCoord =
+            q{
+                if (newPos.%s %s %s)
+                    newPos.%s = %s;
+            }.format(a, comp, lim, a, lim);
+    }
+
+    mixin(clampCoord!("x", "<", "0.5"));
+    mixin(clampCoord!("y", "<", "0.5"));
+    mixin(clampCoord!("z", "<", "0.5"));
+    mixin(clampCoord!("x", ">", "size - 0.5"));
+    mixin(clampCoord!("y", ">", "size - 0.5"));
+    mixin(clampCoord!("z", ">", "size - 0.5"));
+
+    return newPos;
+}
+
+
+final class TerrainManager : System,
+                             IReceiver!CameraUpdatedEvent,
+                             IReceiver!StatEvent
 {
 public:
-    this(Terrain terrain, Camera camera)
+    this()
     {
-        mTerrain       = terrain;
-        mUnloadTimeout = defaultUnloadTimout;
         mToLoadList    = new CktlTree;
+        mUnloadTimeout = defaultUnloadTimout;
+    }
+
+    void set(Terrain terrain, Camera camera)
+    {
+        mTerrain = terrain;
         setMaxDistance2(camera);
-        setCenterChunk(camera);
+        setCenterChunk(camera.position);
         mState = State.init;
     }
 
 protected:
     void receive(CameraUpdatedEvent event)
     {
-        auto camPos = event.camera.position();
-
-        vec3f delta;
-        delta.x = abs(mCenterChunk.x * chunkSize + chunkSize / 2 - camPos.x);
-        delta.y = abs(mCenterChunk.y * chunkSize + chunkSize / 2 - camPos.y);
-        delta.z = abs(mCenterChunk.z * chunkSize + chunkSize / 2 - camPos.z);
-
-        if (delta.x > chunkSize || delta.y > chunkSize || delta.z > chunkSize)
-        {
-            setCenterChunk(event.camera);
-            mState = State.unloading;
-        }
+        updateCamera(event.newCamera, event.oldCamera);
     }
 
     void receive(StatEvent event)
     {
-        import std.stdio;
-
-        writefln("Loaded chunks: %d (unload: %d)",
-                 mTerrain.nbLoadedChunks, mUnloadList.length);
-        writefln("  Mng stats:  %dµs(%dµs) [%d %d]",
-                 mBmMng.average.total!"usecs", mBmMng.deviation.total!"usecs",
-                 mBmMng.min.total!"usecs", mBmMng.max.total!"usecs");
-        writefln("  Unld stats:  %dµs(%dµs) [%d %d]",
-                 mBmUnld.average.total!"usecs", mBmUnld.deviation.total!"usecs",
-                 mBmUnld.min.total!"usecs", mBmUnld.max.total!"usecs");
-        writefln("  Pop stats:  %dµs(%dµs) [%d %d]",
-                 mBmPop.average.total!"usecs", mBmPop.deviation.total!"usecs",
-                 mBmPop.min.total!"usecs", mBmPop.max.total!"usecs");
-        writefln("  Mesh stats: %dµs(%dµs) [%d %d]",
-                 mBmMesh.average.total!"usecs", mBmMesh.deviation.total!"usecs",
-                 mBmMesh.min.total!"usecs", mBmMesh.max.total!"usecs");
-        mBmPop.reset();
-        mBmMesh.reset();
-        mBmMng.reset();
-        mBmUnld.reset();
+        logStat();
     }
 
     override void run(EntityManager es, EventManager events, Duration dt)
@@ -142,11 +140,52 @@ protected:
         mBmMng.stop();
     }
 
-private:
 
-    void setCenterChunk(Camera cam)
+private:
+    void updateCamera(Camera newCam, Camera oldCam)
     {
-        auto camPos = cam.position();
+        vec3f camPos = clamp(newCam.position,
+                             oldCam.position,
+                             mTerrain.size * chunkSize);
+        if (camPos == oldCam.position)
+            return;
+        newCam.position = camPos;
+
+        auto delta = vec3f(mCenterChunk * chunkSize + chunkSize / 2);
+        delta = absByElem(delta - camPos);
+        if (delta.x > chunkSize || delta.y > chunkSize || delta.z > chunkSize)
+        {
+            setCenterChunk(camPos);
+            mState = State.unloading;
+        }
+    }
+
+    void logStat()
+    {
+        import orb.utils.logger;
+
+        infof("Loaded chunks: %d (unload: %d)",
+              mTerrain.nbLoadedChunks, mUnloadList.length);
+        infof("  Mng stats:  %dµs(%dµs) [%d %d]",
+              mBmMng.average.total!"usecs", mBmMng.deviation.total!"usecs",
+              mBmMng.min.total!"usecs", mBmMng.max.total!"usecs");
+        infof("  Unld stats:  %dµs(%dµs) [%d %d]",
+              mBmUnld.average.total!"usecs", mBmUnld.deviation.total!"usecs",
+              mBmUnld.min.total!"usecs", mBmUnld.max.total!"usecs");
+        infof("  Pop stats:  %dµs(%dµs) [%d %d]",
+              mBmPop.average.total!"usecs", mBmPop.deviation.total!"usecs",
+              mBmPop.min.total!"usecs", mBmPop.max.total!"usecs");
+        infof("  Mesh stats: %dµs(%dµs) [%d %d]",
+              mBmMesh.average.total!"usecs", mBmMesh.deviation.total!"usecs",
+              mBmMesh.min.total!"usecs", mBmMesh.max.total!"usecs");
+        mBmPop.reset();
+        mBmMesh.reset();
+        mBmMng.reset();
+        mBmUnld.reset();
+    }
+
+    void setCenterChunk(vec3f camPos)
+    {
         mCenterChunk.x = cast(int)camPos.x / chunkSize;
         mCenterChunk.y = cast(int)camPos.y / chunkSize;
         mCenterChunk.z = cast(int)camPos.z / chunkSize;
@@ -154,9 +193,9 @@ private:
 
     void setMaxDistance2(Camera cam)
     {
-        float d = cam.far() / cos(cam.fov());
-        if (cam.ratio() > 1)
-            d *= cam.ratio();
+        float d = cam.far / cos(cam.fov);
+        if (cam.ratio > 1)
+            d *= cam.ratio;
         assert(d >= 1.0);
         // Square the distance to avoid sqrt()
         mMaxDistance2 = cast(int)ceil(d / chunkSize);
@@ -261,7 +300,7 @@ private:
         auto chunk = loadChunk(mCenterChunk, morton(mCenterChunk),
                                nbLoadRemaining);
 
-//writefln("Init loaded: %s", mCenterChunk.toString);
+//tracef("Init loaded: %s", mCenterChunk.toString);
 
         foreach (axis, side; mCenterChunk.neighbors)
         {
@@ -280,7 +319,7 @@ private:
                 continue;
             }
 
-//writefln("Init to-load: %s", pos.toString);
+//tracef("Init to-load: %s", pos.toString);
             mToLoadList.insert(ChunkToLoad(morton(pos), pos,
                                            1, chunk, axis, side));
         }

@@ -1,5 +1,5 @@
-/* ORB - 3D/physics/IA engine
-   Copyright (C) 2015 ClaudeMr
+/* ORB - 3D/physics/AI engine
+   Copyright (C) 2015-2017 Claude
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -14,22 +14,24 @@
    You should have received a copy of the GNU General Public License
    along with this program. If not, see <http://www.gnu.org/licenses/>. */
 
-module orb.opengl.gl30.meshrenderer;
+module orb.opengl.gl30.chunkrenderer;
 
 public import orb.render.renderer;
-public import orb.opengl.gl30.mesh;
+public import orb.opengl.gl30.chunkmesh;
 
 import orb.opengl.shader;
 import orb.utils.exception;
 import derelict.opengl3.gl3;
 
 
-class Gl30MeshRenderer : IMeshRenderer
+class Gl30ChunkRenderer : IChunkRenderer
 {
 public:
-    this(string vertexShaderCode, string fragmentShaderCode)
+    this()
     {
-        mProgram = loadShaders(fragmentShaderCode, vertexShaderCode);
+        import orb.opengl.gl30.programs : opengl30Programs;
+        enforceOrb("chunk" in opengl30Programs, "No chunk shaders");
+        mProgram = opengl30Programs["chunk"];
     }
 
     ~this()
@@ -37,9 +39,9 @@ public:
         destroy(mProgram);
     }
 
-    IMesh createMesh()
+    IChunkMesh createMesh()
     {
-        return cast(IMesh)new Gl30Mesh(mProgram.attributeLayout);
+        return cast(IChunkMesh)new Gl30ChunkMesh(mProgram.attributeLayout);
     }
 
     void setDirLight(vec4f dirLight, vec4f dirColor)
@@ -54,17 +56,14 @@ public:
         mCamera = camera;
     }
 
-    void setModelPlacement(mat4f model)
+    void setMesh(in IChunkMesh mesh, vec3f pos)
     {
+        auto model = mat4f.translation(pos);
         mat4f matrixModelView     = mCamera.matrixView * model;
         mat4f matrixModelViewProj = mCamera.matrixViewProj * model;
         mProgram.uniforms.matrixModelView     = matrixModelView.transposed;
         mProgram.uniforms.matrixModelViewProj = matrixModelViewProj.transposed;
-    }
-
-    void setMesh(in IMesh mesh)
-    {
-        mMesh = cast(Gl30Mesh)mesh;
+        mMesh = cast(Gl30ChunkMesh)mesh;
     }
 
     void render()
@@ -80,5 +79,5 @@ public:
 private:
     ShaderProgram   mProgram;
     Camera          mCamera;
-    Gl30Mesh        mMesh;
+    Gl30ChunkMesh   mMesh;
 }

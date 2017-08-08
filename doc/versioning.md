@@ -1,7 +1,7 @@
 ORB versioning rules
-================
+====================
 
-Stages
+Phases
 ------
 
 The development will go through different phases:
@@ -9,20 +9,18 @@ The development will go through different phases:
 * (prealpha) - The soft has no special features and is still under early devlopment, but it can be shown to close relatives or friends for test or demo purposes.
 * alpha - The soft is mature enough and is ready to be shown adn tested to the outside world. Alot of features are missing.
 * beta - A serious test phase, aiming to make the software shipable and safe to use, maybe ready for sale. Things are meant to be serious.
-* (release candidate) - To be tested before proper release.
-* release - Release of the software. It must be mature and - if possible - contain zero known bugs.
+* release - Release of the software. It must be mature and - if possible - contain zero known bugs (use "release candidate" - To be tested before proper release).
 
 Versioning
 ----------
 
-During the "dev" phase, the git "tags" will now have the following conventions:
+The previous versionning scheme does not really make sense. The "phase" should be the first item in the version tag.
 
-`dev-X.Y.Z`
+The git "tags" will have the following conventions (as defined in http://semver.org/):
 
-* X corresponds to the _version_ (as defined in _task.md_). Currently, it is 0 until a proper version can be shipped.
-* Y corresponds to a _step_ (as defined in _task.md_).
-* Z correspond to an improvement or bug-fixes upon a step.
+`vX.Y.Z`
 
-Once the _prealpha_, _alpha_ or _beta_ gets ready, the _dev_ keyword will be replaced by the corresponding keyword.
+* X corresponds to the phase of the project. "0" means the project is still in "dev" state. Once the project is in a more stable shape, the X number may be incremented
+* Y corresponds to the _step_ (as defined in _task.md_).
+* Z is incremented once a _feature_ is added (as defined in the list of each steps in _task.md_).
 
-It should basically follow the versioning as defined in http://semver.org/

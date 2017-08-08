@@ -1,5 +1,5 @@
-/* ORB - 3D/physics/IA engine
-   Copyright (C) 2015 ClaudeMr
+/* ORB - 3D/physics/AI engine
+   Copyright (C) 2015-2017 Claude
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -56,11 +56,16 @@ struct Face
     vec3f       normal;
 }
 
-interface IMesh
+interface IChunkMesh
 {
     Vertex* insertVertex(vec3f p);
     void insertFace(Vertex* v0, Vertex* v1, Vertex* v2);
     void commit();
+}
+
+interface IModelMesh
+{
+    //empty at the moment. Just for the purpose of being a handle.
 }
 
 interface ITextMesh

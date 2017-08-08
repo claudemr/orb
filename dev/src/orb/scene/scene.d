@@ -1,5 +1,5 @@
-/* ORB - 3D/physics/IA engine
-   Copyright (C) 2015 ClaudeMr
+/* ORB - 3D/physics/AI engine
+   Copyright (C) 2015-2017 Claude
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -16,123 +16,45 @@
 
 module orb.scene.scene;
 
-public import orb.render.mesh;
 public import orb.scene.camera;
 public import orb.scene.light;
-public import orb.terrain.terrainsystem;
-public import entitysysd;
+public import orb.terrain.terrain;
 
+import orb.component;
 import orb.event;
 import gfm.math.matrix;
 import gfm.math.vector;
 
-
-private vec3f clamp(vec3f newPos, vec3f oldPos, uint size)
-{
-    import std.format;
-
-    template clampCoord(string a, string comp, string lim)
-    {
-        enum string clampCoord = format("if (newPos.%s %s %s) newPos.%s = %s;",
-                                        a, comp, lim, a, lim);
-    }
-
-    mixin (clampCoord!("x", "<", "0.5"));
-    mixin (clampCoord!("y", "<", "0.5"));
-    mixin (clampCoord!("z", "<", "0.5"));
-    mixin (clampCoord!("x", ">", "size - 0.5"));
-    mixin (clampCoord!("y", ">", "size - 0.5"));
-    mixin (clampCoord!("z", ">", "size - 0.5"));
-
-    return newPos;
-}
-
-
-class Node
+class Scene : IReceiver!SpawnEvent
 {
 public:
-    this(Node parent, Entity entity)
+    this(EntityManager em)
     {
-        mParent = parent;
-        mEntity = entity;
-    }
-
-    Node addChild(Entity entity)
-    {
-        auto child = new Node(this, entity);
-        mChilds ~= child;
-        return child;
-    }
-
-private:
-    Node    mParent;
-    Node[]  mChilds;
-    Entity  mEntity;
-}
-
-
-@component struct MeshComponent
-{
-    IMesh    mesh;
-}
-
-
-class Scene : IReceiver!MovementEvent
-{
-public:
-    this(EntitySysD ecs)
-    {
-        mEcs = ecs;
-        ecs.events.subscribe!MovementEvent(this);
+        mEm = em;
     }
 
     auto createCamera()
     {
-        mCameras.length++;
-        mCameras[$ - 1] = new Camera;
-        return mCameras[$ - 1];
+        mCamera = new Camera;
+        return mCamera;
     }
 
-    auto createEntity()
+    auto createTerrain(Args...)(Args args)
     {
-        Entity entity;
-        entity = mEcs.entities.create();
-        return entity;
+        assert(mTerrain is null);
+        mTerrain = new Terrain(args);
+        return mTerrain;
     }
 
-    /**
-     * Create a directional light.
-     * The direction is used for rendering.
-     */
     auto createDirLight(vec4f direction, vec4f color)
     {
-        mDirLights.length++;
-        mDirLights[$ - 1] = new DirLight(direction, color);
-        return mDirLights[$ - 1];
+        mDirLight = new DirLight(direction, color);
+        return mDirLight;
     }
 
-    void receive(MovementEvent event)
+    auto dirLight() @property
     {
-        //todo use the active camera, it's a hack
-        auto cam = mCameras[0];
-        auto move   = event.movement;
-        auto orient = event.orientation;
-        cam.orientate(orient.x, orient.y, orient.z);
-        auto oldPos = cam.position();
-        cam.move(move.x, move.y, move.z);
-        cam.position = clamp(cam.position(), oldPos, mTerrain.size * chunkSize);
-        if (cam.position() != oldPos)
-            mEcs.events.emit!CameraUpdatedEvent(cam);
-    }
-
-    auto dirLights() @property
-    {
-        return mDirLights;
-    }
-
-    Node rootNode() @property @safe pure
-    {
-        return mRootNode;
+        return mDirLight;
     }
 
     auto terrain() @property
@@ -140,21 +62,24 @@ public:
         return mTerrain;
     }
 
-    void terrain(Terrain terrain) @property
+    auto entities() @property
     {
-        if (mTerrain !is null)
-            return;
-        mTerrain = terrain;
-        //todo use the active camera, it's a hack
-        mEcs.systems.register(new TerrainSystem(terrain, mCameras[0]),
-                              Order.first);
+        return mEm;
+    }
+
+protected:
+    void receive(SpawnEvent event)
+    {
+        auto ett = mEm.create();
+        ett.register!Position(event.position);
+        ett.register!Velocity(true, event.velocity);
+        ett.register!Mass(2.0); //2 kg
+        ett.register!Collidable(event.position);
     }
 
 private:
-    Camera[]    mCameras;
-    DirLight[]  mDirLights;
-
-    EntitySysD  mEcs;
-    Node        mRootNode;
-    Terrain     mTerrain;
+    EntityManager   mEm;
+    Camera          mCamera;    //todo use array of cameras
+    DirLight        mDirLight;  //todo use array of dirlight
+    Terrain         mTerrain;
 }

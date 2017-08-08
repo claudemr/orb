@@ -1,5 +1,5 @@
-/* ORB - 3D/physics/IA engine
-   Copyright (C) 2015 ClaudeMr
+/* ORB - 3D/physics/AI engine
+   Copyright (C) 2015-2017 Claude
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 
 module orb.terrain.chunk;
 
+public import orb.scene.camera;
 public import orb.terrain.populator;
 public import orb.utils.geometry;
 
@@ -35,6 +36,9 @@ considered as teleportation.
 enum uint chunkSize    = 16;
  // Extended size: faces of chunks overlap so we can calculate mesh more easily
 enum uint chunkSizeExt = chunkSize + 2;
+
+enum float voxelPerMeter = 1.0f;
+enum float meterPerVoxel = 1.0f / voxelPerMeter;
 
 alias Voxel = float;
 
@@ -226,10 +230,10 @@ public:
 
                 // If 1st point has density ~= 0, take it
                 if (abs(density0) < 1e-3)
-                    edgePoint  = cornerCoords[c0];
+                    edgePoint = cornerCoords[c0];
                 // If 2nd point has density ~= 0, take it
                 else if (abs(density1) < 1e-3)
-                    edgePoint  = cornerCoords[c1];
+                    edgePoint = cornerCoords[c1];
                 // If both point have density ~= 0, take average
                 else if (abs(density0 - density1) < 1e-3)
                     edgePoint = vec3f(cornerCoords[c0] + cornerCoords[c1]) / 2;
@@ -373,7 +377,7 @@ public:
         }
 
         // Create the mesh
-        mMesh = RenderSystem.renderer!IMesh.createMesh();
+        mMesh = RenderSystem.renderer!"Chunk".createMesh();
 
         // Alternate between 2 y-row of cubes to build the faces of the mesh
         YRow[2] yRows;
@@ -411,12 +415,12 @@ public:
         return mIndices;
     }
 
-    inout(IMesh) mesh() @property inout
+    inout(IChunkMesh) mesh() @property inout
     {
         return mMesh;
     }
 
-    void mesh(IMesh mesh) @property
+    void mesh(IChunkMesh mesh) @property
     {
         mMesh = mesh;
     }
@@ -439,6 +443,20 @@ public:
     uint nbFace() @property const
     {
         return mNbFace;
+    }
+
+    bool isVisible(Camera cam)
+    {
+        import orb.utils.traits : Iota;
+        /*static */foreach (x; Iota!(0, 2))
+            /*static */foreach (y; Iota!(0, 2))
+                /*static */foreach (z; Iota!(0, 2))
+                {
+                    vec3f corner = (vec3f(pos) + vec3f(x, y, z)) * chunkSize;
+                    if (cam.isVisible(corner))
+                        return true;
+                }
+        return false;
     }
 
     override string toString() @property const
@@ -464,7 +482,7 @@ private:
     vec3f[]                  mPoints;
     vec3f[]                  mNormals;
     uint[]                   mIndices;
-    IMesh                    mMesh;
+    IChunkMesh               mMesh;
     uint                     mNbFace;
 }
 
