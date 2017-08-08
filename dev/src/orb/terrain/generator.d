@@ -1,6 +1,6 @@
 module orb.terrain.generator;
 
-public import dlib.math.vector;
+public import gfm.math.vector;
 
 alias GenFunction = float delegate(int x, int y, int z);
 

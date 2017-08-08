@@ -16,8 +16,8 @@
 
 module orb.opengl.uniform;
 
-public import dlib.math.matrix;
-public import dlib.math.vector;
+public import gfm.math.matrix;
+public import gfm.math.vector;
 import derelict.opengl3.gl3;
 
 
@@ -163,14 +163,14 @@ struct Uniform
                            GL_FALSE,
                            cast(const(GLfloat*))av.ptr);
     }
-    void set(in ref Matrix4f m)
+    void set(in ref mat4f m)
     {
         glUniformMatrix4fv(glLocation,
                            1,
                            GL_FALSE,
-                           cast(const(GLfloat*))m.arrayof.ptr);
+                           cast(const(GLfloat*))m.v.ptr);
     }
-    void set(in Matrix4f[] am)
+    void set(in mat4f[] am)
     {
         auto tmp = cast(float[4][4][])am;
         set(tmp);

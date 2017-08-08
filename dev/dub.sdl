@@ -31,5 +31,5 @@ configuration "win32_x86" {
 
 dependency "derelict-gl3"  version="~>1.0"
 dependency "derelict-sdl2" version="~>1.0"
-dependency "dlib"          version="~>0.9"
+dependency "gfm:math"      version="~>6.0"
 dependency "entitysysd"    version="~>2.0"

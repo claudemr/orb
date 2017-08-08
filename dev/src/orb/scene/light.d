@@ -16,18 +16,16 @@
 
 module orb.scene.light;
 
-public import dlib.image.color;
-
-import dlib.math.vector;
+public import gfm.math.vector;
 
 class DirLight
 {
-    this(Vector4f direction, Color4f   color)
+    this(vec4f direction, vec4f color)
     {
         this.direction = direction;
         this.color     = color;
     }
 
-    Vector4f direction;
-    Color4f  color;
+    vec4f direction;
+    vec4f color;
 }

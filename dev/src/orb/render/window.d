@@ -21,7 +21,7 @@ public import orb.render.rendertarget;
 import orb.utils.exception;
 import derelict.opengl3.gl3;
 import derelict.sdl2.sdl;
-import derelict.sdl2.ttf;
+import derelict.sdl2.image;
 import std.typecons;
 
 
@@ -45,7 +45,7 @@ class Window : RenderTarget
 {
 public:
     this(string title, uint windowPosX, uint windowPosY,
-         uint windowWidth, uint windowHeight, Color4f backgroundColor)
+         uint windowWidth, uint windowHeight, vec4f backgroundColor)
     {
         super(title, windowWidth, windowHeight, backgroundColor);
 
@@ -72,10 +72,10 @@ public:
         setSwapInterval_TryLateSwapTearing(Yes.vsync);
 
         import std.experimental.logger;
-        infof("Detected OpenGL:\n"
-              "* Version: %s\n"
-              "* Vendor: %s\n"
-              "* Renderer: %s\n"
+        infof("Detected OpenGL:\n" ~
+              "* Version: %s\n" ~
+              "* Vendor: %s\n" ~
+              "* Renderer: %s\n" ~
               "* GLSL version: %s\n",
               glGetString(GL_VERSION).fromStringz,
               glGetString(GL_VENDOR).fromStringz,
@@ -89,9 +89,11 @@ public:
         mGlVersion = DerelictGL3.reload(GLVersion.GL30, GLVersion.GL30);
         infof("Loaded OpenGL version: %d\n", mGlVersion);
 
-        ret = TTF_Init();
-        scope(failure) TTF_Quit();
-        enforceSdl(ret == 0, "TTF init failed");
+        //Initialize PNG loading
+        int imgFlags = IMG_INIT_PNG;
+        imgFlags = IMG_Init(imgFlags);
+        scope(failure) IMG_Quit();
+        enforceSdl(imgFlags & IMG_INIT_PNG, "IMG_Init failed");
 
         GLint maxTexComUnits, maxTexUnits, maxTexSize;
         glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &maxTexComUnits);
@@ -119,7 +121,7 @@ public:
 
     ~this()
     {
-        TTF_Quit();
+        IMG_Quit();
         SDL_GL_DeleteContext(mGlContext);
         SDL_DestroyWindow(mpWindow);
         SDL_Quit();

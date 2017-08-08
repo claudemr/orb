@@ -16,7 +16,7 @@
 
 module orb.utils.geometry;
 
-import dlib.math.vector;
+public import gfm.math.vector;
 import std.range;
 
 
@@ -34,17 +34,21 @@ enum Side
 }
 
 
-/* is it really useful?
-auto vectori(T...)(T t)
-    if (t.length > 0)
+bool isAlmostZero(T, int N, float EPS = 1e-3)(Vector!(T, N) v)
+    pure nothrow @safe @nogc
 {
-    return Vector!(int, t.length)(t);
-}*/
+    foreach (i; 0 .. N)
+    {
+        if (v.v[i] < -EPS || v.v[i] > EPS)
+            return false;
+    }
+    return true;
+}
 
 
-Vector3i getNeighbor(in Vector3i p, Axis axis, Side side)
+vec3i getNeighbor(in vec3i p, Axis axis, Side side)
 {
-    Vector3i n = p;
+    vec3i n = p;
     n[axis] += side * 2 - 1;
     return n;
 }
@@ -70,7 +74,7 @@ private string neighborSortDg(int axis, string side, bool isNearest3)
 /**
  * Return neighbors of point P.
  */
-auto neighbors(Vector3i p) @property
+auto neighbors(vec3i p) @property
 {
     struct Apply
     {
@@ -98,9 +102,9 @@ auto neighbors(Vector3i p) @property
  * The third boolean parameter tells whether the neighbor is amongst the 3
  * nearest neighbors to O.
  */
-auto neighbors(Vector3i p, Vector3i o) @property
+auto neighbors(vec3i p, vec3i o) @property
 {
-    Vector3i delta = p - o;
+    vec3i delta = p - o;
 
     struct Apply
     {
@@ -207,7 +211,7 @@ auto neighbors(Vector3i p, Vector3i o) @property
     return Apply();
 }
 
-/*int GetMortonNumber(Vector3i v)
+/*int GetMortonNumber(vec3i v)
 {
     return spreadBits(v.x, 0) | spreadBits(v.y, 1) | spreadBits(v.z, 2);
 }
@@ -259,7 +263,7 @@ unittest
     //import std.stdio;
     import std.random;
 
-    Vector3i o, p;
+    vec3i o, p;
 
     foreach (i; 0..100)
     {
@@ -287,7 +291,7 @@ unittest
 }
 
 
-ulong morton(Vector3i p) pure /*nothrow*/ @safe /*@nogc*/ //toString...
+ulong morton(vec3i p) pure /*nothrow*/ @safe /*@nogc*/ //toString...
 {
     static immutable ulong[4] mask = [0x00000000FF0000FF, 0x000000F00F00F00F,
                                       0x00000C30C30C30C3, 0x0000249249249249];

@@ -23,11 +23,11 @@ public import orb.terrain.terrainsystem;
 public import entitysysd;
 
 import orb.event;
-import dlib.math.matrix;
-import dlib.math.vector;
+import gfm.math.matrix;
+import gfm.math.vector;
 
 
-private Vector3f clamp(Vector3f newPos, Vector3f oldPos, uint size)
+private vec3f clamp(vec3f newPos, vec3f oldPos, uint size)
 {
     import std.format;
 
@@ -104,7 +104,7 @@ public:
      * Create a directional light.
      * The direction is used for rendering.
      */
-    auto createDirLight(Vector4f direction, Color4f color)
+    auto createDirLight(vec4f direction, vec4f color)
     {
         mDirLights.length++;
         mDirLights[$ - 1] = new DirLight(direction, color);

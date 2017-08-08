@@ -16,7 +16,7 @@
 
 module orb.capture;
 
-public import dlib.math.vector;
+public import gfm.math.vector;
 import std.file;
 
 
@@ -29,10 +29,10 @@ enum State
 
 struct Datum
 {
-    Vector3f transVel;
-    Vector3f rotVel;
-    bool transVelUpdated;
-    bool rotVelUpdated;
+    vec3f transVel;
+    vec3f rotVel;
+    bool  transVelUpdated;
+    bool  rotVelUpdated;
 }
 
 
@@ -69,8 +69,8 @@ public:
         mState = State.idle;
     }
 
-    void save(Vector3f transVel,
-              Vector3f rotVel,
+    void save(vec3f transVel,
+              vec3f rotVel,
               bool transVelUpdated,
               bool rotVelUpdated)
     {

@@ -52,7 +52,7 @@ public:
                                           "a.mortonId < b.mortonId");
     }
 
-    Chunk loadChunk(Vector3i p, ulong mortonId)
+    Chunk loadChunk(vec3i p, ulong mortonId)
     {
         auto loadedChunk = LoadedChunk(mortonId, null);
 
@@ -120,7 +120,7 @@ public:
         return Iterator(this);
     }
 
-    Chunk find(Vector3i p)
+    Chunk find(vec3i p)
     {
         auto loadedChunk = LoadedChunk(morton(p), null);
         auto r = mLoadedChunks.equalRange(loadedChunk);
@@ -153,7 +153,7 @@ public:
                         getNeighborFace(chunk, Axis.z, Side.front));
     }
 
-    bool isInside(Vector3i p) const
+    bool isInside(vec3i p) const
     {
         if (p.x >= mSize || p.y >= mSize || p.z >= mSize)
             return false;

@@ -29,8 +29,8 @@ import std.stdio;
 
 alias BmStat = orb.utils.benchmark.Stat;
 alias CktlTree = RedBlackTree!(ChunkToLoad,
-                               "a.d2 < b.d2 ||"
-                               "(a.d2 == b.d2 &&"
+                               "a.d2 < b.d2 ||" ~
+                               "(a.d2 == b.d2 &&" ~
                                " a.mortonId < b.mortonId)",
                                true); // Allow duplicates
 
@@ -48,12 +48,12 @@ private enum State
 
 private struct ChunkToLoad
 {
-    ulong       mortonId;   // mortonId of the chunk to load
-    Vector3i    pos;        // Position of the chunk to load
-    int         d2;         // Squared distance of the chunk to load
-    Chunk       neighbor;   // Neighbor chunk requesting the load
-    Axis        axis;       // Axis of neighboring
-    Side        side;       // The chunk to load is on that side of the neighbor
+    ulong mortonId;   // mortonId of the chunk to load
+    vec3i pos;        // Position of the chunk to load
+    int   d2;         // Squared distance of the chunk to load
+    Chunk neighbor;   // Neighbor chunk requesting the load
+    Axis  axis;       // Axis of neighboring
+    Side  side;       // The chunk to load is on that side of the neighbor
 }
 
 
@@ -75,7 +75,7 @@ protected:
     {
         auto camPos = event.camera.position();
 
-        Vector3f delta;
+        vec3f delta;
         delta.x = abs(mCenterChunk.x * chunkSize + chunkSize / 2 - camPos.x);
         delta.y = abs(mCenterChunk.y * chunkSize + chunkSize / 2 - camPos.y);
         delta.z = abs(mCenterChunk.z * chunkSize + chunkSize / 2 - camPos.z);
@@ -163,7 +163,7 @@ private:
         mMaxDistance2 *= mMaxDistance2;
     }
 
-    Chunk loadChunk(Vector3i p, ulong mortonId, ref int nbLoadRemaining)
+    Chunk loadChunk(vec3i p, ulong mortonId, ref int nbLoadRemaining)
     out (chunk)
     {
         assert(chunk !is null);
@@ -211,7 +211,7 @@ private:
         {
             if (chunk.unloading || chunk.timestamp != MonoTime.zero)
                 continue;
-            auto d2 = distancesqr(chunk.pos, mCenterChunk);
+            auto d2 = mCenterChunk.squaredDistanceTo(chunk.pos);
             if (d2 >= mMaxDistance2)
             {
                 chunk.unloading = true;
@@ -361,7 +361,7 @@ private:
                     continue;
 
                 // Do not process if it's out of sight range
-                auto d2 = distancesqr(mCenterChunk, ngbPos);
+                auto d2 = mCenterChunk.squaredDistanceTo(ngbPos);
                 if (d2 >= mMaxDistance2)
                     continue;
 
@@ -387,7 +387,7 @@ private:
     immutable int mLoadPerFrame = 4;
     Terrain  mTerrain;
     State    mState;
-    Vector3i mCenterChunk;
+    vec3i    mCenterChunk;
     int      mMaxDistance2;
     Duration mUnloadTimeout;
 

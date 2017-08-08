@@ -16,15 +16,15 @@
 
 module orb.gui.guielement;
 
-public import dlib.math.vector;
+public import gfm.math.vector;
 
 
 interface IGuiElement
 {
     // properties
-    Vector2f position()  @property const;
-    Vector2f size()      @property const;
-    int      order()     @property const;
+    vec2f position()  @property const;
+    vec2f size()      @property const;
+    int   order()     @property const;
 
     // methods
     void     render();
@@ -34,12 +34,12 @@ interface IGuiElement
 class GuiElement : IGuiElement
 {
 public:
-    Vector2f position()  @property const
+    vec2f position()  @property const
     {
         return mPosition;
     }
 
-    Vector2f size()  @property const
+    vec2f size()  @property const
     {
         return mSize;
     }
@@ -54,6 +54,6 @@ public:
     }
 
 protected:
-    Vector2f mPosition, mSize;
-    int      mOrder;
+    vec2f mPosition, mSize;
+    int   mOrder;
 }

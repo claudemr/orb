@@ -19,32 +19,31 @@ module orb.render.renderer;
 public import orb.render.mesh;
 public import orb.scene.camera;
 public import orb.text.font;
-public import dlib.image.color;
-public import dlib.math.matrix;
-public import dlib.math.vector;
+public import gfm.math.matrix;
+public import gfm.math.vector;
 
 
 interface IMeshRenderer
 {
-    IMesh createMesh(in Vector3f[] points,
-                     in Vector3f[] normals,
+    IMesh createMesh(in vec3f[] points,
+                     in vec3f[] normals,
                      in uint[] indices);
-    void setDirLight(Vector4f dirLight, Color4f dirColor);
+    void setDirLight(vec4f dirLight, vec4f dirColor);
     void setCamera(Camera camera);
     void setMesh(in IMesh mesh);
-    void setModelPlacement(Matrix4f model);
+    void setModelPlacement(mat4f model);
     void render();
 }
 
 
 interface ITextRenderer
 {
-    ITextMesh createMesh(in Vector2f[] points,
-                         in Vector2f[] texCoords,
+    ITextMesh createMesh(in vec2f[] points,
+                         in vec2f[] texCoords,
                          in uint[] indices);
     void load(in Font font);
     void prepare();
     void enable(in Font font);
-    void render(ITextMesh tm, Vector2f position, Color4f color);
+    void render(ITextMesh tm, vec2f position, vec4f color);
     void unprepare();
 }

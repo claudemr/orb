@@ -16,7 +16,9 @@
 
 module orb.text.font;
 
-public import dlib.image;
+import orb.utils.exception;
+import derelict.sdl2.image;
+import derelict.sdl2.sdl;
 import std.algorithm;
 import std.array;
 import std.ascii;
@@ -33,7 +35,31 @@ import std.string;
 
 enum int maxChar = 128;
 
-alias FontAtlas = SuperImage;
+struct FontAtlas
+{
+public:
+    int width() const @property
+    {
+        return mImage.w;
+    }
+
+    int height() const @property
+    {
+        return mImage.h;
+    }
+
+    const(void*) data() const @property
+    {
+        return mImage.pixels;
+    }
+
+private:
+    this(const SDL_Surface* i)
+    {
+        mImage = i;
+    }
+    const SDL_Surface* mImage;
+}
 
 enum Padding : int
 {
@@ -80,7 +106,14 @@ public:
 
         // Load the font atlas
         import std.path;
-        mImage = loadPNG(chainPath(dirName(filename), mFilename).array);
+        string imageFileName = chainPath(dirName(filename), mFilename).array;
+        mImage = IMG_Load(imageFileName.toStringz);
+        enforceOrb(mImage !is null, "Image load failed: " ~ imageFileName);
+    }
+
+    ~this()
+    {
+        SDL_FreeSurface(mImage);
     }
 
     int size() @property const
@@ -108,9 +141,9 @@ public:
         return &mCharset[i];
     }
 
-    const(FontAtlas) atlas() @property const
+    FontAtlas atlas() @property const
     {
-        return mImage;
+        return FontAtlas(mImage);
     }
 
 private:
@@ -130,7 +163,7 @@ private:
 
     FontChar[maxChar]   mCharset;
 
-    SuperImage mImage;
+    SDL_Surface* mImage;
 }
 
 

@@ -23,8 +23,8 @@ import orb.opengl.uniform;
 import orb.opengl.utils;
 import orb.utils.exception;
 import derelict.opengl3.gl3;
-import dlib.math.matrix;
-import dlib.math.vector;
+import gfm.math.matrix;
+import gfm.math.vector;
 import std.string;
 
 

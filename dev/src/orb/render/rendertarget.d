@@ -18,7 +18,6 @@ module orb.render.rendertarget;
 
 public import orb.gui.canvas;
 public import orb.render.viewport;
-public import dlib.image.color;
 
 /**
  * The render-target is a frame-buffer of some sort receiving the 2-D rendering.
@@ -27,7 +26,7 @@ public import dlib.image.color;
 abstract class RenderTarget
 {
 public:
-    this(string title, uint width, uint height, Color4f backgroundColor)
+    this(string title, uint width, uint height, vec4f backgroundColor)
     {
         mTitle  = title;
         mWidth  = width;
@@ -75,7 +74,7 @@ private:
     string      mTitle;
     uint        mWidth;
     uint        mHeight;
-    Color4f     mBackgroundColor;
+    vec4f       mBackgroundColor;
     Viewport    mViewport;
     Canvas      mCanvas;
 }

@@ -73,7 +73,7 @@ void resetNgbId(ref ubyte outId)
 class Chunk
 {
 public:
-    this(Vector3i p)
+    this(vec3i p)
     {
         pos            = p;
         timestamp      = MonoTime.zero;
@@ -149,7 +149,7 @@ public:
 
     void populate(Generator gen)
     {
-        Vector3i coord = pos * chunkSize;
+        vec3i coord = pos * chunkSize;
 
         foreach (int z; 0 .. chunkSize)
             foreach (int y; 0 .. chunkSize)
@@ -182,7 +182,7 @@ public:
 
     void buildMesh(Face nxb, Face nxf, Face nyb, Face nyf, Face nzb, Face nzf)
     {
-        void buildVoxel(Vector3i p)
+        void buildVoxel(vec3i p)
         {
             struct Neighbors
             {
@@ -226,28 +226,28 @@ public:
                 switch (a)
                 {
                 case 0:
-                    s ~= "mPoints[$-1] = vectorf(0.0f + p.x, 0.0f + p.y, 0.0f + p.z);";
+                    s ~= "mPoints[$-1] = vec3f(0.0f + p.x, 0.0f + p.y, 0.0f + p.z);";
                     break;
                 case 1:
-                    s ~= "mPoints[$-1] = vectorf(1.0f + p.x, 0.0f + p.y, 0.0f + p.z);";
+                    s ~= "mPoints[$-1] = vec3f(1.0f + p.x, 0.0f + p.y, 0.0f + p.z);";
                     break;
                 case 2:
-                    s ~= "mPoints[$-1] = vectorf(1.0f + p.x, 1.0f + p.y, 0.0f + p.z);";
+                    s ~= "mPoints[$-1] = vec3f(1.0f + p.x, 1.0f + p.y, 0.0f + p.z);";
                     break;
                 case 3:
-                    s ~= "mPoints[$-1] = vectorf(0.0f + p.x, 1.0f + p.y, 0.0f + p.z);";
+                    s ~= "mPoints[$-1] = vec3f(0.0f + p.x, 1.0f + p.y, 0.0f + p.z);";
                     break;
                 case 4:
-                    s ~= "mPoints[$-1] = vectorf(0.0f + p.x, 0.0f + p.y, 1.0f + p.z);";
+                    s ~= "mPoints[$-1] = vec3f(0.0f + p.x, 0.0f + p.y, 1.0f + p.z);";
                     break;
                 case 5:
-                    s ~= "mPoints[$-1] = vectorf(1.0f + p.x, 0.0f + p.y, 1.0f + p.z);";
+                    s ~= "mPoints[$-1] = vec3f(1.0f + p.x, 0.0f + p.y, 1.0f + p.z);";
                     break;
                 case 6:
-                    s ~= "mPoints[$-1] = vectorf(1.0f + p.x, 1.0f + p.y, 1.0f + p.z);";
+                    s ~= "mPoints[$-1] = vec3f(1.0f + p.x, 1.0f + p.y, 1.0f + p.z);";
                     break;
                 case 7:
-                    s ~= "mPoints[$-1] = vectorf(0.0f + p.x, 1.0f + p.y, 1.0f + p.z);";
+                    s ~= "mPoints[$-1] = vec3f(0.0f + p.x, 1.0f + p.y, 1.0f + p.z);";
                     break;
                 default:
                     assert(false);
@@ -261,22 +261,22 @@ public:
                 switch (a)
                 {
                 case 0: // 0 1 2 3
-                    s ~= "mNormals[$-1] = vectorf(0.0f, 0.0f, -1.0f);";
+                    s ~= "mNormals[$-1] = vec3f(0.0f, 0.0f, -1.0f);";
                     break;
                 case 1: // 4 5 6 7
-                    s ~= "mNormals[$-1] = vectorf(0.0f, 0.0f, 1.0f);";
+                    s ~= "mNormals[$-1] = vec3f(0.0f, 0.0f, 1.0f);";
                     break;
                 case 2: // 0 3 7 4
-                    s ~= "mNormals[$-1] = vectorf(-1.0f, 0.0f, 0.0f);";
+                    s ~= "mNormals[$-1] = vec3f(-1.0f, 0.0f, 0.0f);";
                     break;
                 case 3: // 1 2 6 5
-                    s ~= "mNormals[$-1] = vectorf(1.0f, 0.0f, 0.0f);";
+                    s ~= "mNormals[$-1] = vec3f(1.0f, 0.0f, 0.0f);";
                     break;
                 case 4: // 0 1 5 4
-                    s ~= "mNormals[$-1] = vectorf(0.0f, -1.0f, 0.0f);";
+                    s ~= "mNormals[$-1] = vec3f(0.0f, -1.0f, 0.0f);";
                     break;
                 case 5: // 2 3 7 6
-                    s ~= "mNormals[$-1] = vectorf(0.0f, 1.0f, 0.0f);";
+                    s ~= "mNormals[$-1] = vec3f(0.0f, 1.0f, 0.0f);";
                     break;
                 default:
                     assert(false);
@@ -363,7 +363,7 @@ public:
                     auto v = opIndex(x, y, z);
                     if (!v)
                         continue;
-                    buildVoxel(Vector3i(x, y, z));
+                    buildVoxel(vec3i(x, y, z));
                 }
 
         if (mNbFace == 0)
@@ -455,7 +455,7 @@ public:
 
 public:
     // Chunk data
-    Vector3i    pos;
+    vec3i       pos;
     ubyte       loadedNgb;
     Chunk[2][3] neighbors;
     bool        hiddenNeighbor;
@@ -468,8 +468,8 @@ private:
     bool                                        mFull;
     Voxel[chunkSize * chunkSize * chunkSize]    mVoxels;
     bool[2][3]                                  mFullSide;
-    Vector3f[]                                  mPoints;
-    Vector3f[]                                  mNormals;
+    vec3f[]                                     mPoints;
+    vec3f[]                                     mNormals;
     uint[]                                      mIndices;
     IMesh                                       mMesh;
     uint                                        mNbFace;

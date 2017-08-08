@@ -18,12 +18,11 @@ module orb.utils.exception;
 
 import derelict.opengl3.gl3;
 import derelict.sdl2.sdl;
-import derelict.sdl2.ttf;
+import derelict.sdl2.image;
 
 import std.exception;
 import std.string;
 
-alias enforceOrb = enforceEx!OrbException;
 
 // define and init an associative array to get text version of GL errors
 string[GLenum] glErrorToStr;
@@ -67,20 +66,35 @@ GLenum enforceGl(lazy const(char)[] msg = null,
     return glErr;
 }
 
-// Exception class specialized towards SDL errors
-class SdlException : Exception
+// Exception class specialized towards ORB engine
+class OrbException : Exception
 {
     string sdlErrorStr;
 
-     @safe nothrow
-    this(string strErr, string msg, string file = null, size_t line = 0)
+    @safe nothrow
+    this(string header, string strErr,
+         string msg, string file = null, size_t line = 0)
     {
         sdlErrorStr = strErr;
-        super("[SDL] "~msg~" ("~strErr~")", file, line);
+        if (strErr is null)
+            super("[" ~ header ~ "] " ~ msg, file, line);
+        else
+            super("[" ~ header ~ "] " ~ msg ~ " ("~strErr~")", file, line);
     }
 }
 
-// Check SDL errors, and throws a SdlException if an error is encountered
+
+T enforceOrb(T)(T value, lazy string msg = "",
+                string file = __FILE__,
+                size_t line = __LINE__) @trusted
+{
+    if (!value)
+        throw new OrbException("ORB", null, msg.idup, file, line);
+
+    return value;
+}
+
+// Check SDL errors, and throws an OrbException if an error is encountered
 T enforceSdl(T)(T value, lazy string msg = "",
                 string file = __FILE__,
                 size_t line = __LINE__) @trusted
@@ -90,20 +104,10 @@ T enforceSdl(T)(T value, lazy string msg = "",
     SDL_ClearError();
 
     if (!value && sdlErrorStr !is null)
-        throw new SdlException(sdlErrorStr, msg.idup, file, line);
+        throw new OrbException("SDL", sdlErrorStr, msg.idup, file, line);
 
     return value;
 }
-
-// Exception class specialized towards ORB engine
-class OrbException : Exception
-{
-    this(string msg, string file = null, size_t line = 0) @safe pure nothrow
-    {
-        super("[ORB] "~msg, file, line);
-    }
-}
-
 
 void ensureNotInGC(string resourceName) nothrow
 {
@@ -120,7 +124,7 @@ void ensureNotInGC(string resourceName) nothrow
     catch(InvalidMemoryOperationError e)
     {
         import core.stdc.stdio;
-        fprintf(stderr, "Error: clean-up of %s incorrectly"
+        fprintf(stderr, "Error: clean-up of %s incorrectly" ~
                         " depends on destructors called by the GC.\n",
                         resourceName.ptr);
         assert(false); // crash

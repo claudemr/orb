@@ -18,7 +18,7 @@ module orb.opengl.vbo;
 
 import orb.opengl.utils;
 import orb.utils.exception;
-import dlib.math.vector;
+import gfm.math.vector;
 import derelict.opengl3.gl3;
 import std.stdio;
 import std.string;
@@ -28,11 +28,11 @@ import std.traits;
 template isValidVboType(T)
 {
     alias U = Unqual!T;
-    static if (is(U == Vector4f))
+    static if (is(U == vec4f))
         enum bool isValidVboType = true;
-    else static if (is(U == Vector3f))
+    else static if (is(U == vec3f))
         enum bool isValidVboType = true;
-    else static if (is(U == Vector2f))
+    else static if (is(U == vec2f))
         enum bool isValidVboType = true;
     else
         enum bool isValidVboType = isValidGlType!U;
@@ -144,19 +144,19 @@ public:
     {
         alias U = Unqual!T;
 
-        static if (is(U == Vector4f))
+        static if (is(U == vec4f))
         {
             mElementType   = GL_FLOAT_VEC4;
             mElementLength = 4;
             mValueType     = GL_FLOAT;
         }
-        else static if (is(U == Vector3f))
+        else static if (is(U == vec3f))
         {
             mElementType   = GL_FLOAT_VEC3;
             mElementLength = 3;
             mValueType     = GL_FLOAT;
         }
-        else static if (is(U == Vector2f))
+        else static if (is(U == vec2f))
         {
             mElementType   = GL_FLOAT_VEC2;
             mElementLength = 2;

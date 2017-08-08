@@ -38,7 +38,7 @@ public:
     {
         auto meshRndr = RenderSystem.renderer!IMesh;
         auto dirLight = mScene.dirLights[0];
-        auto lightVec = dirLight.direction * mCamera.matrixView;
+        auto lightVec = mCamera.matrixView * dirLight.direction;
         meshRndr.setDirLight(lightVec, dirLight.color);
 
         meshRndr.setCamera(mCamera);
@@ -46,7 +46,7 @@ public:
         // render entities
         /*foreach (Entity entity; mEcs.entities.entitiesWith!MeshComponent)
         {
-            meshRndr.setModelPlacement(Matrix4f.identity);
+            meshRndr.setModelPlacement(mat4f.identity);
             meshRndr.setMesh(entity.component!MeshComponent.mesh);
             meshRndr.render();
         }*/
@@ -54,7 +54,7 @@ public:
         // render terrain
         if (mScene.terrain !is null)
         {
-            import dlib.math.affine : translationMatrix;
+            import gfm.math.matrix;
 
             foreach (chunk; mScene.terrain[])
             {
@@ -62,10 +62,10 @@ public:
                     continue;
 
                 auto chunkPos = chunk.pos;
-                auto transVec = vectorf(chunkPos.x * chunkSize,
-                                        chunkPos.y * chunkSize,
-                                        chunkPos.z * chunkSize);
-                meshRndr.setModelPlacement(translationMatrix(transVec));
+                auto transVec = vec3f(chunkPos.x * chunkSize,
+                                      chunkPos.y * chunkSize,
+                                      chunkPos.z * chunkSize);
+                meshRndr.setModelPlacement(mat4f.translation(transVec));
                 meshRndr.setMesh(chunk.mesh);
                 meshRndr.render();
             }

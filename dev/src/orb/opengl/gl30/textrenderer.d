@@ -43,8 +43,8 @@ public:
         destroy(mProgram);
     }
 
-    ITextMesh createMesh(in Vector2f[] points,
-                         in Vector2f[] texCoords,
+    ITextMesh createMesh(in vec2f[] points,
+                         in vec2f[] texCoords,
                          in uint[] indices)
     {
         return cast(ITextMesh)new Gl30TextMesh(points, texCoords, indices,
@@ -57,9 +57,8 @@ public:
             return;
 
         mTexPerFont[font] = new Texture;
-        // xxx dlib is not const friendly
-        auto atlas = cast(FontAtlas)font.atlas;
-        mTexPerFont[font].set2dRgbaUncomp(atlas.data.ptr,
+        auto atlas = font.atlas;
+        mTexPerFont[font].set2dRgbaUncomp(atlas.data,
                                           atlas.width,
                                           atlas.height);
     }
@@ -79,13 +78,13 @@ public:
         glBindTexture(GL_TEXTURE_2D, mTexPerFont[font].glId);
     }
 
-    void render(ITextMesh tm, Vector2f position, Color4f color)
+    void render(ITextMesh tm, vec2f position, vec4f color)
     {
         auto gl30tm = cast(Gl30TextMesh)tm;
 
         mProgram.uniforms.position = position;
         // Discard alpha component of color at the moment...
-        mProgram.uniforms.color = vectorf(color.r, color.g, color.b);
+        mProgram.uniforms.color = vec3f(color.r, color.g, color.b);
         gl30tm.vao.bind();
 
         glDrawElements(GL_TRIANGLES, cast(GLsizei)gl30tm.vboIndices.length,

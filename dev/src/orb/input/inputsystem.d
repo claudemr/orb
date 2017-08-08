@@ -20,7 +20,7 @@ module orb.input.inputsystem;
 
 public import orb.render.window;
 public import std.typecons : BitFlags;
-public import dlib.math.vector;
+public import gfm.math.vector;
 public import entitysysd;
 
 import orb.utils.exception;
@@ -329,13 +329,13 @@ interface IStateEvent
 interface IMouseButtonEvent
 {
     void receive(MouseButton button,
-                 bool pressed, int nbClicks, Vector2i pos,
+                 bool pressed, int nbClicks, vec2i pos,
                  EventManager events, Duration dt);
 }
 
 interface IMouseMotionEvent
 {
-    void receive(Vector2i pos, Vector2i motion,
+    void receive(vec2i pos, vec2i motion,
                  BitFlags!MouseButton buttonFlags,
                  EventManager events, Duration dt);
 }
@@ -482,7 +482,7 @@ class InputSystem : System
                     buttonPtr.receive(button,
                                       event.button.state == SDL_PRESSED,
                                       event.button.clicks,
-                                      Vector2i(event.button.x, event.button.y),
+                                      vec2i(event.button.x, event.button.y),
                                       events,
                                       dt);
                 }
@@ -515,8 +515,8 @@ class InputSystem : System
             case SDL_MOUSEMOTION:
                 if (mMouseMotionEvent !is null)
                     mMouseMotionEvent.receive(
-                            Vector2i(event.motion.x, event.motion.y),
-                            Vector2i(event.motion.xrel, event.motion.yrel),
+                            vec2i(event.motion.x, event.motion.y),
+                            vec2i(event.motion.xrel, event.motion.yrel),
                             event.motion.state.toBitFlagsMouseButton(),
                             events,
                             dt);

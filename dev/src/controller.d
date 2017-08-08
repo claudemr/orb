@@ -23,8 +23,8 @@ public:
         mInputSys    = inSys;
 
         inSys.bind(cast(IStateEvent)this, KeyCode.ESCAPE);
-        inSys.bind(cast(IStateEvent)this, KeyCode.F11);     // capture
-        inSys.bind(cast(IStateEvent)this, KeyCode.F12);     // playback
+        inSys.bind(cast(IStateEvent)this, KeyCode.F11);     // playback
+        inSys.bind(cast(IStateEvent)this, KeyCode.F12);     // capture
 
         bindMovement();
 
@@ -157,7 +157,7 @@ public:
         }
     }
 
-    void receive(Vector2i pos, Vector2i motion,
+    void receive(vec2i pos, vec2i motion,
                  BitFlags!MouseButton buttonFlags,
                  EventManager events, Duration dt)
     {
@@ -252,8 +252,8 @@ private:
     }
 
     InputSystem mInputSys;
-    Vector3f    mTransVel;
-    Vector3f    mRotVel;
+    vec3f       mTransVel;
+    vec3f       mRotVel;
     bool        mRotUpdated;
     bool        mTransUpdated;
     Capture     mCapture;

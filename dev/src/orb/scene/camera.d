@@ -16,20 +16,19 @@
 
 module orb.scene.camera;
 
-public import dlib.math.matrix;
-public import dlib.math.vector;
+public import gfm.math.matrix;
+public import gfm.math.vector;
 
-import dlib.math.affine;
-import dlib.math.quaternion;
+import gfm.math.quaternion;
 
 //todo: Remove matrices from the class, it should be built everytime its is
 //      requested and be saved by the user.
 
-private Quaternionf quaternionFromAxis(Vector3f f, Vector3f r, Vector3f u)
+private quatf quaternionFromAxis(vec3f f, vec3f r, vec3f u)
 pure @safe
 {
     import std.math : sqrt;
-    Quaternionf q;
+    quatf q;
 
     float  trace = r.x + u.y - f.z + 1.0;
 
@@ -88,7 +87,7 @@ pure @safe:
         mRatio = 4.0 / 3.0;
         mNear  = 0.1;
         mFar   = 100.0;
-        mQOrientation   = Quaternionf.identity();
+        mQOrientation   = quatf.identity();
         mMatrixViewDone = mMatrixProjDone = mMatrixViewProjDone = false;
     }
 
@@ -101,23 +100,28 @@ pure @safe:
      */
     void orientate(float yaw, float pitch, float roll)
     {
-        mQOrientation = mQOrientation * rotationQuaternion(mUp, yaw) *
-                        rotationQuaternion(mRight, pitch) *
-                        rotationQuaternion(mFront, roll);
+        mQOrientation = mQOrientation *
+                        quatf.fromAxis(mUp, yaw) *
+                        quatf.fromAxis(mRight, pitch) *
+                        quatf.fromAxis(mFront, roll);
 
         mQOrientation.normalize();
 
         // Transform quaternion to matrix and get orientation vectors
-        mMatrixView = mQOrientation.toMatrix4x4();
+        mMatrixView = cast(mat4f)mQOrientation;
 
         // Get right, up and front vector of the transposed matrix
-        mRight = vectorf(mMatrixView.a11, mMatrixView.a12, mMatrixView.a13);
-        mUp    = vectorf(mMatrixView.a21, mMatrixView.a22, mMatrixView.a23);
-        mFront = -vectorf(mMatrixView.a31, mMatrixView.a32, mMatrixView.a33);
+/*        mRight =  vec3f(mMatrixView.a11, mMatrixView.a12, mMatrixView.a13);
+        mUp    =  vec3f(mMatrixView.a21, mMatrixView.a22, mMatrixView.a23);
+        mFront = -vec3f(mMatrixView.a31, mMatrixView.a32, mMatrixView.a33);*/
 
-        mMatrixView[0,3] = -dot(mRight, mPos);
-        mMatrixView[1,3] = -dot(mUp,    mPos);
-        mMatrixView[2,3] =  dot(mFront, mPos);
+        mRight =  vec3f(mMatrixView.rows[0].v[0..3]);
+        mUp    =  vec3f(mMatrixView.rows[1].v[0..3]);
+        mFront = -vec3f(mMatrixView.rows[2].v[0..3]);
+
+        mMatrixView.c[0][3] = -dot(mRight, mPos);
+        mMatrixView.c[1][3] = -dot(mUp,    mPos);
+        mMatrixView.c[2][3] =  dot(mFront, mPos);
 
         mMatrixViewDone     = true;
         mMatrixViewProjDone = false;
@@ -149,14 +153,14 @@ pure @safe:
             mPos.z += up * mUp.z;
         }
 
-        Vector3f x, y;
+        vec3f x, y;
 
         x = -mRight;
         y = -mUp;
 
-        mMatrixView.a14 = dot(mPos, x);
-        mMatrixView.a24 = dot(mPos, y);
-        mMatrixView.a34 = dot(mPos, mFront);
+        mMatrixView.c[0][3] = dot(mPos, x);
+        mMatrixView.c[1][3] = dot(mPos, y);
+        mMatrixView.c[2][3] = dot(mPos, mFront);
 
         mMatrixViewDone     = true;
         mMatrixViewProjDone = false;
@@ -166,23 +170,18 @@ pure @safe:
      * From current position, orientate the camera towards a certain target
      * position
      */
-    void lookAt(Vector3f targetPoint)
+    void lookAt(vec3f targetPoint)
     {
-        //todo dlib.math.vector.isAlmostZero should be @safe pure
-        import orb.utils.traits;
-        enum attrs = FunctionAttribute.trusted |
-                     FunctionAttribute.pure_;
-        auto isAlmostZero_ = assumeAttr!attrs(&isAlmostZero);
+        import orb.utils.geometry : isAlmostZero;
+        mMatrixView = mat4f.identity;
 
-        mMatrixView = Matrix4f.identity;
+        if (isAlmostZero(mUp) && isAlmostZero(mRight))
+            mUp = vec3f(0.0f, 1.0f, 0.0f);
 
-        if (isAlmostZero_(mUp) && isAlmostZero_(mRight))
-            mUp = vectorf(0.0f, 1.0f, 0.0f);
-
-        Vector3f f, u, s;
+        vec3f f, u, s;
         f = (targetPoint - mPos).normalized;
 
-        if (isAlmostZero_(mRight))
+        if (isAlmostZero(mRight))
         {
             u = mUp.normalized;
             s = cross(f, u).normalized;
@@ -206,7 +205,7 @@ pure @safe:
 
     //*** Getter methods
 
-    Matrix4f matrixView() @property
+    mat4f matrixView() @property
     {
         if (!mMatrixViewDone)
         {
@@ -216,17 +215,19 @@ pure @safe:
         return mMatrixView;
     }
 
-    Matrix4f matrixProj() @property
+    mat4f matrixProj() @property
     {
         if (!mMatrixProjDone)
         {
-            mMatrixProj = perspectiveMatrix(mFov, mRatio, mNear, mFar);
+            import std.math : PI;
+            mMatrixProj = mat4f.perspective(mFov * PI / 180, mRatio,
+                                            mNear, mFar);
             mMatrixProjDone = true;
         }
         return mMatrixProj;
     }
 
-    Matrix4f matrixViewProj() @property
+    mat4f matrixViewProj() @property
     {
         if (!mMatrixViewProjDone)
         {
@@ -269,26 +270,26 @@ pure @safe:
 private:
     void buildMatrixView() pure @safe
     {
-        mMatrixView[0,0] =  mRight.x;
-        mMatrixView[0,1] =  mRight.y;
-        mMatrixView[0,2] =  mRight.z;
-        mMatrixView[1,0] =  mUp.x;
-        mMatrixView[1,1] =  mUp.y;
-        mMatrixView[1,2] =  mUp.z;
-        mMatrixView[2,0] = -mFront.x;
-        mMatrixView[2,1] = -mFront.y;
-        mMatrixView[2,2] = -mFront.z;
-        mMatrixView[0,3] = -dot(mRight, mPos);
-        mMatrixView[1,3] = -dot(mUp,    mPos);
-        mMatrixView[2,3] =  dot(mFront, mPos);
+        mMatrixView.c[0][0] =  mRight.x;
+        mMatrixView.c[0][1] =  mRight.y;
+        mMatrixView.c[0][2] =  mRight.z;
+        mMatrixView.c[1][0] =  mUp.x;
+        mMatrixView.c[1][1] =  mUp.y;
+        mMatrixView.c[1][2] =  mUp.z;
+        mMatrixView.c[2][0] = -mFront.x;
+        mMatrixView.c[2][1] = -mFront.y;
+        mMatrixView.c[2][2] = -mFront.z;
+        mMatrixView.c[0][3] = -dot(mRight, mPos);
+        mMatrixView.c[1][3] = -dot(mUp,    mPos);
+        mMatrixView.c[2][3] =  dot(mFront, mPos);
 
         mMatrixViewDone     = true;
         mMatrixViewProjDone = false;
     }
 
-    Vector3f mPos, mFront, mRight, mUp;
-    float    mFov, mRatio, mNear, mFar;
-    Matrix4f mMatrixViewProj, mMatrixView, mMatrixProj;
-    Quaternionf mQOrientation;
-    bool     mMatrixViewDone, mMatrixProjDone, mMatrixViewProjDone;
+    vec3f mPos, mFront, mRight, mUp;
+    float mFov, mRatio, mNear, mFar;
+    mat4f mMatrixViewProj, mMatrixView, mMatrixProj;
+    quatf mQOrientation;
+    bool  mMatrixViewDone, mMatrixProjDone, mMatrixViewProjDone;
 }

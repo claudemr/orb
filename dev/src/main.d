@@ -23,29 +23,25 @@ class LightSystem : System
 public:
     this(Scene scene)
     {
-        mInitLight = vectorf(0.0f, 0.0f, 1.0f, 0.0f);
+        mInitLight = vec4f(0.0f, 0.0f, 1.0f, 0.0f);
         mDirLightx = mDirLighty = 0.0f;
-        mLight = scene.createDirLight(mInitLight,
-                                      color4(0xFF_FF_90_FF));
+        mLight = scene.createDirLight(mInitLight, vec4f(1, 1, 0.6, 1));
 
     }
 
     override void run(EntityManager entities, EventManager events, Duration dt)
     {
         import std.math : PI;
-        import dlib.math.affine;
-        import dlib.math.utils;
-        Matrix4f matRotLight;
+        mat4f matRotLight;
 
         mDirLightx += PI / 60 / 2;
         mDirLighty += PI / 110 / 2;
-        matRotLight = rotationMatrix(Axis.y, mDirLighty)
-                    * rotationMatrix(Axis.x, mDirLightx);
-        mLight.direction = mInitLight * matRotLight;
+        matRotLight = mat4f.rotateY(mDirLighty) * mat4f.rotateX(mDirLightx);
+        mLight.direction = matRotLight * mInitLight;
     }
 
 private:
-    immutable Vector4f mInitLight;
+    immutable vec4f mInitLight;
     float mDirLightx, mDirLighty;
     DirLight mLight;
 }
@@ -53,7 +49,7 @@ private:
 struct BallGen
 {
 public
-    this(Vector3f o, float radius)
+    this(vec3f o, float radius)
     {
         mCenter = o;
         mRadius = radius;
@@ -61,15 +57,15 @@ public
 
     float opIndex(int x, int y, int z)
     {
-        Vector3f p = vectorf(x, y, z);
+        auto p = vec3f(x, y, z);
         p = p - mCenter;
         import orb.utils.math : sqrt;
-        return mRadius - sqrt(p.lengthsqr);
+        return mRadius - sqrt(p.squaredLength);
     }
 
 private:
-    Vector3f mCenter;
-    float    mRadius;
+    vec3f mCenter;
+    float mRadius;
 }
 
 
@@ -90,7 +86,7 @@ void main()
     auto win = renderSys.createWindow("Orb",                // title
                                       10, 10,               // position
                                       vpWidth, vpHeight,    // width/height
-                                      color3(0x00_00_70));  // background color
+                                      vec4f(0, 0, 0.4, 1)); // background color
 
     import orb.opengl.gl30.meshrenderer;
     import orb.opengl.gl30.textrenderer;
@@ -103,22 +99,22 @@ void main()
     auto scene = engine.createScene();
 
     auto camera = scene.createCamera();
-    camera.position = vectorf(worldSize/2,
-                              worldSize/2,
-                              worldSize/2 - planetRadius - 10);
+    camera.position = vec3f(worldSize/2,
+                            worldSize/2,
+                            worldSize/2 - planetRadius - 10);
     camera.fov   = 45.0;
     camera.ratio = cast(float)vpWidth / vpHeight;
     camera.near  = 0.1;
     camera.far   = 40.0;
 
-    camera.lookAt(vectorf(worldSize/2, worldSize/2, worldSize/2));
+    camera.lookAt(vec3f(worldSize/2, worldSize/2, worldSize/2));
 
     // Manage directional light
     auto lightSys = new LightSystem(scene);
     engine.systems.register(lightSys);
 
     // Generate terrain features (just a ball)
-    auto ball = BallGen(vectorf(worldSize/2, worldSize/2, worldSize/2),
+    auto ball = BallGen(vec3f(worldSize/2, worldSize/2, worldSize/2),
                         planetRadius);
     auto generator = new Generator;
 
@@ -137,10 +133,10 @@ void main()
     renderSys.renderer!ITextMesh.load(font);
 
     auto text = new GuiText("Hello world!", font, 0.1,
-                            vectorf(0.25f, 0.25f), vectorf(0.5f, 0.5f),
+                            vec2f(0.25f, 0.25f), vec2f(0.5f, 0.5f),
                             Yes.Wrap, AlignmentH.left, AlignmentV.top);
-    text.color = color3(0xA0_80_10);
-    //canvas.attach(text);
+    text.color = vec4f(0.8, 0.5, 0.1, 1.0);
+    canvas.attach(text);
 
     // Input management
     auto controller = new Controller(engine.createInputSystem(win));

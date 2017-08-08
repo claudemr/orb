@@ -32,8 +32,8 @@ public import entitysysd;
 
 @event struct MovementEvent
 {
-    Vector3f movement;
-    Vector3f orientation;
-    bool     movementUpdated;
-    bool     orientationUpdated;
+    vec3f movement;
+    vec3f orientation;
+    bool  movementUpdated;
+    bool  orientationUpdated;
 }

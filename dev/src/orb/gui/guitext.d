@@ -23,7 +23,6 @@ import orb.text.font;
 import orb.render.mesh;
 import orb.render.rendersystem;
 import orb.text.text;
-import dlib.image.color;
 import std.ascii;
 import std.exception;
 import std.math : floor, ceil;
@@ -92,7 +91,7 @@ class GuiText : GuiElement
 public:
     this(string text,
          in Font font, float fontSize,
-         Vector2f pos, Vector2f size,
+         vec2f pos, vec2f size,
          Flag!"Wrap" wrapped = No.Wrap,
          AlignmentH alignmentH = AlignmentH.left,
          AlignmentV alignmentV = AlignmentV.top)
@@ -121,13 +120,13 @@ public:
     {
     }
 
-    Color4f color(Color4f c) @property
+    vec4f color(vec4f c) @property
     {
         mColor = c;
         return c;
     }
 
-    Color4f color() @property const
+    vec4f color() @property const
     {
         return mColor;
     }
@@ -384,10 +383,10 @@ private:
     void insertVertex(float x0, float y0, float x1, float y1)
     {
         //writefln("    (%3.3f %3.3f) (%3.3f %3.3f)", x0, y0, x1, y1);
-        mVertices ~= vectorf(x0, y0);
-        mVertices ~= vectorf(x0, y1);
-        mVertices ~= vectorf(x1, y1);
-        mVertices ~= vectorf(x1, y0);
+        mVertices ~= vec2f(x0, y0);
+        mVertices ~= vec2f(x0, y1);
+        mVertices ~= vec2f(x1, y1);
+        mVertices ~= vec2f(x1, y0);
     }
 
     void insertTexCoord(float x0, float y0, float x1, float y1)
@@ -396,10 +395,10 @@ private:
         //xxx dlib is not const friendly
         auto atlas = cast(FontAtlas)mFont.atlas;
         float w = atlas.width, h = atlas.height;
-        mTexCoords ~= vectorf(x0 / w, y0 / h);
-        mTexCoords ~= vectorf(x0 / w, y1 / h);
-        mTexCoords ~= vectorf(x1 / w, y1 / h);
-        mTexCoords ~= vectorf(x1 / w, y0 / h);
+        mTexCoords ~= vec2f(x0 / w, y0 / h);
+        mTexCoords ~= vec2f(x0 / w, y1 / h);
+        mTexCoords ~= vec2f(x1 / w, y1 / h);
+        mTexCoords ~= vec2f(x1 / w, y0 / h);
     }
 
     void insertIndex()
@@ -423,10 +422,10 @@ private:
     Flag!"Wrap" mWrapped;
     AlignmentH  mAlignmentH;
     AlignmentV  mAlignmentV;
-    Color4f     mColor;
+    vec4f       mColor;
     Text        mText;
-    Vector2f[]  mVertices;
-    Vector2f[]  mTexCoords;
+    vec2f[]     mVertices;
+    vec2f[]     mTexCoords;
     uint[]      mIndices;
     ITextMesh   mTextMesh;
 }

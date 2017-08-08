@@ -19,7 +19,7 @@ module orb.opengl.gl30.textmesh;
 public import orb.render.mesh;
 public import orb.opengl.attribute;
 public import orb.opengl.vao;
-public import dlib.math.vector;
+public import gfm.math.vector;
 
 import orb.utils.exception;
 import derelict.opengl3.gl3;
@@ -29,7 +29,7 @@ import derelict.opengl3.gl3;
 class Gl30TextMesh : ITextMesh
 {
 public:
-    this(in Vector2f[] points, in Vector2f[] texCoords, in uint[] indices,
+    this(in vec2f[] points, in vec2f[] texCoords, in uint[] indices,
          in AttributeLayout attrLayout)
     {
         mVboPoints    = new Vbo;

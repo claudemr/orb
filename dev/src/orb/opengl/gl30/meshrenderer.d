@@ -37,15 +37,15 @@ public:
         destroy(mProgram);
     }
 
-    IMesh createMesh(in Vector3f[] points,
-                     in Vector3f[] normals,
+    IMesh createMesh(in vec3f[] points,
+                     in vec3f[] normals,
                      in uint[] indices)
     {
         return cast(IMesh)new Gl30Mesh(points, normals, indices,
                                        mProgram.attributeLayout);
     }
 
-    void setDirLight(Vector4f dirLight, Color4f dirColor)
+    void setDirLight(vec4f dirLight, vec4f dirColor)
     {
         mProgram.use();
         mProgram.uniforms.lightRay.direction = dirLight;
@@ -57,12 +57,12 @@ public:
         mCamera = camera;
     }
 
-    void setModelPlacement(Matrix4f model)
+    void setModelPlacement(mat4f model)
     {
-        Matrix4f matrixModelView     = mCamera.matrixView * model;
-        Matrix4f matrixModelViewProj = mCamera.matrixViewProj * model;
-        mProgram.uniforms.matrixModelView     = matrixModelView;
-        mProgram.uniforms.matrixModelViewProj = matrixModelViewProj;
+        mat4f matrixModelView     = mCamera.matrixView * model;
+        mat4f matrixModelViewProj = mCamera.matrixViewProj * model;
+        mProgram.uniforms.matrixModelView     = matrixModelView.transposed;
+        mProgram.uniforms.matrixModelViewProj = matrixModelViewProj.transposed;
     }
 
     void setMesh(in IMesh mesh)

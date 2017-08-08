@@ -26,3 +26,16 @@ auto assumeAttr(uint A, T)(T t) pure @trusted
     enum newAttrs = updateAttr!(T, A);
     return cast(SetFunctionAttributes!(T, functionLinkage!T, newAttrs)) t;
 }
+
+/**
+ * Need a compile-time iota to enable "static foreach()"
+ *
+ * ie. foreach (i; Iota!(0, N)) { ... }
+ */
+private template Iota(size_t i, size_t n)
+{
+    static if (n == 0)
+        alias Iota = AliasSeq!();
+    else
+        alias Iota = AliasSeq!(i, Iota!(i + 1, n - 1));
+}

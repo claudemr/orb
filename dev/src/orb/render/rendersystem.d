@@ -25,7 +25,7 @@ import orb.event;
 import orb.utils.exception;
 import derelict.opengl3.gl3;
 import derelict.sdl2.sdl;
-import derelict.sdl2.ttf;
+import derelict.sdl2.image;
 
 
 /* OpenGL renderer for now */
@@ -44,14 +44,14 @@ public:
         DerelictGL3.load();
         scope(failure) DerelictGL3.unload();
 
-        // Load the SDL2_ttf library
-        DerelictSDL2ttf.load();
-        scope(failure) DerelictSDL2ttf.unload();
+        // Load the SDL2_image library
+        DerelictSDL2Image.load();
+        scope(failure) DerelictSDL2Image.unload();
     }
 
     ~this()
     {
-        DerelictSDL2ttf.unload();
+        DerelictSDL2Image.unload();
         DerelictGL3.unload();
         DerelictSDL2.unload();
     }
@@ -59,7 +59,7 @@ public:
     auto createWindow(string title,
                       uint posX, uint posY,
                       uint width, uint height,
-                      Color4f backgroundColor)
+                      vec4f backgroundColor)
     {
         mWin = new Window(title, posX, posY, width, height, backgroundColor);
         return mWin;

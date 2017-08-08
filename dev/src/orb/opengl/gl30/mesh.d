@@ -19,7 +19,7 @@ module orb.opengl.gl30.mesh;
 public import orb.render.mesh;
 public import orb.opengl.attribute;
 public import orb.opengl.vao;
-public import dlib.math.vector;
+public import gfm.math.vector;
 
 import derelict.opengl3.gl3;
 
@@ -27,7 +27,7 @@ import derelict.opengl3.gl3;
 class Gl30Mesh : IMesh
 {
 public:
-    this(in Vector3f[] points, in Vector3f[] normals, in uint[] indices,
+    this(in vec3f[] points, in vec3f[] normals, in uint[] indices,
          in AttributeLayout attrLayout)
     {
         mVboPoints  = new Vbo;
