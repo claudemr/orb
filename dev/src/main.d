@@ -46,35 +46,13 @@ private:
     DirLight mLight;
 }
 
-struct BallGen
-{
-public
-    this(vec3f o, float radius)
-    {
-        mCenter = o;
-        mRadius = radius;
-    }
-
-    float opIndex(int x, int y, int z)
-    {
-        auto p = vec3f(x, y, z);
-        p = p - mCenter;
-        import orb.utils.math : sqrt;
-        return mRadius - sqrt(p.squaredLength);
-    }
-
-private:
-    vec3f mCenter;
-    float mRadius;
-}
-
 
 void main()
 {
     enum uint vpWidth   = 640;
     enum uint vpHeight  = 480;
-    enum int  planetRadius = 500;
-    enum int  worldSize    = 1024;
+    enum int  worldSize     = 1024;
+    enum float planetRadius = 500;
     static assert(planetRadius * 2 < worldSize);
 
     // ORB Engine init
@@ -113,19 +91,13 @@ void main()
     auto lightSys = new LightSystem(scene);
     engine.systems.register(lightSys);
 
-    // Generate terrain features (just a ball)
-    auto ball = BallGen(vec3f(worldSize/2, worldSize/2, worldSize/2),
-                        planetRadius);
-    auto generator = new Generator;
-
-    generator.register(&ball.opIndex);
-    scene.terrain = new Terrain(generator,
-                                worldSize);
+    // Generate terrain
+    scene.terrain = new Terrain(worldSize, planetRadius);
 
     // Prepare viewport for the scene, and canvas for the GUI
     win.attach(new Viewport(scene, camera));
 
-    auto canvas = new Canvas;
+    /*auto canvas = new Canvas;
     win.attach(canvas);
 
     // Load the font and make a text
@@ -136,7 +108,7 @@ void main()
                             vec2f(0.25f, 0.25f), vec2f(0.5f, 0.5f),
                             Yes.Wrap, AlignmentH.left, AlignmentV.top);
     text.color = vec4f(0.8, 0.5, 0.1, 1.0);
-    canvas.attach(text);
+    canvas.attach(text);*/
 
     // Input management
     auto controller = new Controller(engine.createInputSystem(win));

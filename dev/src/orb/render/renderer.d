@@ -25,9 +25,7 @@ public import gfm.math.vector;
 
 interface IMeshRenderer
 {
-    IMesh createMesh(in vec3f[] points,
-                     in vec3f[] normals,
-                     in uint[] indices);
+    IMesh createMesh();
     void setDirLight(vec4f dirLight, vec4f dirColor);
     void setCamera(Camera camera);
     void setMesh(in IMesh mesh);

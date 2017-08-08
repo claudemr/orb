@@ -38,153 +38,141 @@ Detected OpenGL:
 Benchmarks
 ==========
 
-Tag: v0.2.0-dev11
+Tag: v0.2.0-dev13
 
 Comments
 --------
 
-Unloading of chunks does not take much time (_Unld_ benchmark proves it).
-Chunk loading management has been greatly improved using a red-black tree. All operation are done O(log n) instead of the O(n) insertion.
+Smooth voxels are successfully now implemented.
 
-Now, chunk "population" and "mesh" have to be optimized. But it means we should rather think about the chunk data structure for storing blocks and think ahead about multi-element management.
+However, as expected, the meshing layer takes 2.5x as much time as before.
 
+The IMesh interface has been changed so we can add vertices and faces one by one, but this could be improved a lot. Some architecture rework could be done as well in the chunk buildMesh() (quite big now).
+
+Previous notes:
+We can also use a chunk size of 32, so the ratio between face voxels and the whole chunk voxels is lower (and so is the populating redundancy).
+
+The unloading could also be improved.
+
+After all that is done, maybe we can study LOD management.
 
 On CPU1:
 --------
 
-Loaded chunks: 258 (unload: 0)
-  Mng stats:  16µs(30µs) [0 144]
+Loaded chunks: 266 (unload: 0)
+  Mng stats:  44µs(422µs) [0 7273]
   Unld stats:  0µs(0µs) [0 0]
-  Pop stats:  989µs(372µs) [483 2089]
-  Mesh stats: 1198µs(628µs) [108 3347]
-All: 16602µs (2936|26463)
-    - TerrainSystem@5200: 1409µs (2|12834)
-    - RenderSystem@b300: 1191µs (18|1938)
+  Pop stats:  849µs(350µs) [472 1962]
+  Mesh stats: 2146µs(1830µs) [303 18278]
+All: 16851µs (7297|39365)
+    - TerrainSystem@7200: 1885µs (1|25400)
+    - RenderSystem@d300: 1484µs (72|2862)
 
-Playback start
-Loaded chunks: 258 (unload: 0)
-  Mng stats:  1µs(0µs) [0 4]
-  Unld stats:  0µs(0µs) [0 0]
-  Pop stats:  0µs(0µs) [0 0]
-  Mesh stats: 0µs(0µs) [0 0]
-All: 16670µs (12782|19405)
-    - TerrainSystem@5200: 3µs (1|6)
-    - RenderSystem@b300: 1519µs (602|2616)
-
-Loaded chunks: 262 (unload: 26)
-  Mng stats:  6µs(85µs) [1 1484]
-  Unld stats:  160µs(0µs) [160 160]
-  Pop stats:  512µs(2µs) [508 516]
-  Mesh stats: 841µs(583µs) [468 3914]
-All: 16909µs (13282|86095)
-    - TerrainSystem@5200: 238µs (2|70175)
-    - RenderSystem@b300: 1361µs (628|2384)
-
-Loaded chunks: 396 (unload: 100)
-  Mng stats:  37µs(191µs) [1 1686]
-  Unld stats:  131µs(23µs) [98 160]
-  Pop stats:  833µs(390µs) [486 1982]
-  Mesh stats: 898µs(532µs) [69 4748]
-All: 17543µs (6250|84784)
-    - TerrainSystem@5200: 1994µs (2|68646)
-    - RenderSystem@b300: 1315µs (560|2607)
-
-Loaded chunks: 533 (unload: 96)
-  Mng stats:  45µs(221µs) [1 2048]
-  Unld stats:  187µs(29µs) [148 222]
-  Pop stats:  895µs(398µs) [487 2064]
-  Mesh stats: 968µs(527µs) [107 3549]
-All: 17553µs (3655|86775)
-    - TerrainSystem@5200: 2273µs (2|70804)
-    - RenderSystem@b300: 1472µs (620|2640)
-
-Loaded chunks: 799 (unload: 166)
-  Mng stats:  63µs(266µs) [1 2402]
-  Unld stats:  252µs(49µs) [168 287]
-  Pop stats:  961µs(396µs) [489 2108]
-  Mesh stats: 1094µs(777µs) [116 6840]
-All: 17718µs (3334|83569)
-    - TerrainSystem@5200: 2978µs (3|67305)
-    - RenderSystem@b300: 1624µs (722|2515)
-
-Loaded chunks: 994 (unload: 251)
-  Mng stats:  71µs(314µs) [1 2956]
-  Unld stats:  377µs(68µs) [290 460]
-  Pop stats:  1003µs(430µs) [484 2067]
-  Mesh stats: 1030µs(665µs) [186 5809]
-All: 17543µs (6906|87186)
-    - TerrainSystem@5200: 2758µs (2|71459)
-    - RenderSystem@b300: 1927µs (787|3640)
-
-Loaded chunks: 1160 (unload: 442)
-  Mng stats:  73µs(322µs) [1 4127]
-  Unld stats:  470µs(11µs) [458 485]
-  Pop stats:  991µs(394µs) [483 1955]
-  Mesh stats: 1096µs(778µs) [151 7803]
-All: 17248µs (6191|86017)
-    - TerrainSystem@5200: 2659µs (2|70398)
-    - RenderSystem@b300: 2151µs (887|3765)
-
-Loaded chunks: 1163 (unload: 435)
-  Mng stats:  68µs(237µs) [1 2378]
-  Unld stats:  455µs(31µs) [416 493]
-  Pop stats:  975µs(392µs) [489 1793]
-  Mesh stats: 1130µs(885µs) [73 7738]
-All: 17680µs (4370|67671)
-    - TerrainSystem@5200: 2744µs (2|52005)
-    - RenderSystem@b300: 2397µs (1151|4341)
-
-Loaded chunks: 1162 (unload: 413)
-  Mng stats:  73µs(314µs) [1 3762]
-  Unld stats:  522µs(21µs) [497 550]
-  Pop stats:  985µs(386µs) [483 2048]
-  Mesh stats: 1078µs(758µs) [112 7128]
-All: 18394µs (5464|75728)
-    - TerrainSystem@5200: 2837µs (2|55951)
-    - RenderSystem@b300: 2475µs (1005|4777)
-
-Loaded chunks: 1249 (unload: 407)
-  Mng stats:  85µs(310µs) [1 3197]
-  Unld stats:  604µs(42µs) [552 656]
-  Pop stats:  1026µs(419µs) [484 2174]
-  Mesh stats: 1043µs(777µs) [91 7815]
-All: 19062µs (7474|85948)
-    - TerrainSystem@5200: 3218µs (3|66780)
-    - RenderSystem@b300: 2511µs (1160|4897)
-
-Loaded chunks: 1283 (unload: 394)
-  Mng stats:  74µs(300µs) [1 3019]
-  Unld stats:  464µs(81µs) [355 549]
-  Pop stats:  1043µs(421µs) [486 2040]
-  Mesh stats: 1140µs(940µs) [66 7390]
-All: 18990µs (6898|81091)
-    - TerrainSystem@5200: 3157µs (2|66973)
-    - RenderSystem@b300: 2541µs (1216|4153)
-
-Loaded chunks: 1174 (unload: 197)
-  Mng stats:  47µs(256µs) [1 3320]
-  Unld stats:  432µs(64µs) [368 496]
-  Pop stats:  1004µs(393µs) [493 1778]
-  Mesh stats: 1024µs(680µs) [115 3252]
-All: 17221µs (4930|79650)
-    - TerrainSystem@5200: 1633µs (3|60561)
-    - RenderSystem@b300: 2576µs (1236|4519)
-
-Loaded chunks: 980 (unload: 0)
-  Mng stats:  3µs(25µs) [0 392]
+Loaded chunks: 266 (unload: 0)
+  Mng stats:  0µs(1µs) [0 6]
   Unld stats:  0µs(0µs) [0 0]
   Pop stats:  0µs(0µs) [0 0]
   Mesh stats: 0µs(0µs) [0 0]
-All: 16749µs (14469|34279)
-    - TerrainSystem@5200: 6µs (1|394)
-    - RenderSystem@b300: 2209µs (1164|3226)
+All: 16955µs (4229|34702)
+    - TerrainSystem@7200: 3µs (1|8)
+    - RenderSystem@d300: 1617µs (664|3021)
 
-Loaded chunks: 980 (unload: 0)
-  Mng stats:  1µs(0µs) [0 2]
-  Unld stats:  0µs(0µs) [0 0]
-  Pop stats:  0µs(0µs) [0 0]
-  Mesh stats: 0µs(0µs) [0 0]
-All: 16732µs (8731|26594)
-    - TerrainSystem@5200: 3µs (2|6)
-    - RenderSystem@b300: 2136µs (890|3350)
+Loaded chunks: 292 (unload: 26)
+  Mng stats:  8µs(90µs) [0 1519]
+  Unld stats:  97µs(0µs) [97 97]
+  Pop stats:  692µs(333µs) [473 1400]
+  Mesh stats: 1635µs(1779µs) [313 18813]
+All: 17251µs (8735|135663)
+    - TerrainSystem@7200: 688µs (1|119689)
+    - RenderSystem@d300: 1524µs (650|2877)
+
+Loaded chunks: 410 (unload: 102)
+  Mng stats:  42µs(206µs) [0 1700]
+  Unld stats:  122µs(8µs) [111 134]
+  Pop stats:  747µs(318µs) [472 1439]
+  Mesh stats: 1757µs(2337µs) [288 33011]
+All: 19170µs (5125|144949)
+    - TerrainSystem@7200: 3450µs (1|129376)
+    - RenderSystem@d300: 1656µs (742|3125)
+
+Loaded chunks: 545 (unload: 101)
+  Mng stats:  159µs(1818µs) [0 29414]
+  Unld stats:  210µs(21µs) [183 242]
+  Pop stats:  790µs(335µs) [474 1852]
+  Mesh stats: 1700µs(1501µs) [278 27774]
+All: 18946µs (4071|159867)
+    - TerrainSystem@7200: 3741µs (0|144039)
+    - RenderSystem@d300: 1661µs (703|3448)
+
+Loaded chunks: 760 (unload: 171)
+  Mng stats:  180µs(1970µs) [0 32024]
+  Unld stats:  235µs(25µs) [196 267]
+  Pop stats:  814µs(358µs) [473 1475]
+  Mesh stats: 1832µs(1965µs) [278 35381]
+All: 18769µs (5367|133792)
+    - TerrainSystem@7200: 4087µs (1|118247)
+    - RenderSystem@d300: 1767µs (830|3621)
+
+Loaded chunks: 1000 (unload: 207)
+  Mng stats:  221µs(2469µs) [0 40794]
+  Unld stats:  378µs(24µs) [348 407]
+  Pop stats:  868µs(348µs) [473 1790]
+  Mesh stats: 1909µs(2044µs) [275 33318]
+All: 18222µs (5472|170516)
+    - TerrainSystem@7200: 3873µs (1|155038)
+    - RenderSystem@d300: 2019µs (908|4299)
+
+Loaded chunks: 1190 (unload: 327)
+  Mng stats:  60µs(264µs) [1 2967]
+  Unld stats:  450µs(25µs) [431 487]
+  Pop stats:  879µs(389µs) [471 1975]
+  Mesh stats: 1800µs(2453µs) [276 40252]
+All: 17932µs (2651|127493)
+    - TerrainSystem@7200: 3346µs (2|112696)
+    - RenderSystem@d300: 2408µs (1077|5060)
+
+Loaded chunks: 1324 (unload: 458)
+  Mng stats:  72µs(238µs) [1 2529]
+  Unld stats:  462µs(65µs) [378 539]
+  Pop stats:  898µs(391µs) [473 1967]
+  Mesh stats: 1897µs(3023µs) [274 49542]
+All: 18331µs (5795|136915)
+    - TerrainSystem@7200: 3758µs (1|121110)
+    - RenderSystem@d300: 2654µs (1231|5305)
+
+Loaded chunks: 1312 (unload: 437)
+  Mng stats:  65µs(253µs) [1 2713]
+  Unld stats:  499µs(98µs) [360 575]
+  Pop stats:  866µs(351µs) [474 1852]
+  Mesh stats: 1689µs(1310µs) [275 6503]
+All: 18459µs (4222|97104)
+    - TerrainSystem@7200: 3389µs (1|80935)
+    - RenderSystem@d300: 2940µs (1431|5769)
+
+Loaded chunks: 1278 (unload: 419)
+  Mng stats:  67µs(292µs) [1 3087]
+  Unld stats:  470µs(127µs) [361 650]
+  Pop stats:  895µs(390µs) [473 1983]
+  Mesh stats: 1823µs(3564µs) [273 59117]
+All: 19040µs (4213|118571)
+    - TerrainSystem@7200: 3425µs (2|103362)
+    - RenderSystem@d300: 3025µs (1339|5639)
+
+Loaded chunks: 1335 (unload: 519)
+  Mng stats:  83µs(337µs) [1 3194]
+  Unld stats:  550µs(69µs) [444 640]
+  Pop stats:  855µs(384µs) [473 1974]
+  Mesh stats: 1768µs(2941µs) [275 54689]
+All: 19361µs (5745|166464)
+    - TerrainSystem@7200: 4317µs (2|150417)
+    - RenderSystem@d300: 3024µs (1453|5834)
+
+Loaded chunks: 1187 (unload: 200)
+  Mng stats:  50µs(254µs) [1 3130]
+  Unld stats:  527µs(54µs) [473 582]
+  Pop stats:  948µs(379µs) [473 1960]
+  Mesh stats: 1758µs(1301µs) [274 7045]
+All: 17714µs (8621|103017)
+    - TerrainSystem@7200: 2524µs (2|86654)
+    - RenderSystem@d300: 3108µs (1383|5414)
 

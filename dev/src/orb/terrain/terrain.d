@@ -27,10 +27,20 @@ import std.datetime;
 import core.time;
 
 
-private struct LoadedChunk
+private struct Morton
 {
     ulong mortonId;
-    Chunk chunk;
+
+    size_t toHash() const /*@safe does not like pointer slicing*/ pure nothrow @nogc
+    {
+        import std.digest.murmurhash;
+        return *(cast(uint*)digest!(MurmurHash3!32)((&mortonId)[0..1]));
+    }
+
+    bool opEquals(ref const Morton m) const @safe pure nothrow @nogc
+    {
+        return mortonId == m.mortonId;
+    }
 }
 
 class Terrain
@@ -40,59 +50,51 @@ public:
      * Define a terrain, using a shape generator and the size of the bounding
      * box.
      */
-    this(Generator gen, int size)
+    this(int size, float planetRadius)
     {
         // Make sure size is a multiple of chunkSize
-        mSize = (size + chunkSize - 1) >> chunkBitSize;
+        mSize = (size + chunkSize - 1) / chunkSize;
 
-        mGen = gen;
-
-        // Create chunk list
-        mLoadedChunks = new RedBlackTree!(LoadedChunk,
-                                          "a.mortonId < b.mortonId");
+        mPopulator = new Populator(vec3f(size/2, size/2, size/2),
+                                   planetRadius);
     }
 
     Chunk loadChunk(vec3i p, ulong mortonId)
     {
-        auto loadedChunk = LoadedChunk(mortonId, null);
-
         // Is it already loaded?
-        auto r = mLoadedChunks.equalRange(loadedChunk);
-        if (!r.empty)
+        auto loadedChunk = Morton(mortonId) in mLoadedChunks;
+        if (loadedChunk !is null)
         {
-            auto chunk = r.front.chunk;
             // reset timestamp (hence stop unloading)
-            chunk.timestamp = MonoTime.zero;
+            loadedChunk.timestamp = MonoTime.zero;
 
             // reset neighboring, it may have an opportunity to be complete
-            if (chunk.hiddenNeighbor)
+            if (loadedChunk.hiddenNeighbor)
             {
-                chunk.resetNeighbors();
-                setEdgeNeighbors(chunk);
+                loadedChunk.resetNeighbors();
+                setEdgeNeighbors(*loadedChunk);
             }
-            return chunk;
+            return *loadedChunk;
         }
 
         auto chunk = mChunkPool.alloc(p);
 
         setEdgeNeighbors(chunk);
-        loadedChunk.chunk = chunk;
-        mLoadedChunks.insert(loadedChunk);
+        mLoadedChunks[Morton(mortonId)] = chunk;
 
         return chunk;
     }
 
     void unloadChunk(Chunk chunk)
     {
-        auto loadedChunk = LoadedChunk(morton(chunk.pos), null);
-        auto n = mLoadedChunks.removeKey(loadedChunk);
-        assert(n == 1);
+        auto check = mLoadedChunks.remove(Morton(morton(chunk.pos)));
+        assert(check);
         mChunkPool.free(chunk);
     }
 
     void populate(Chunk chunk)
     {
-        chunk.populate(mGen);
+        chunk.populate(mPopulator);
     }
 
     /// Traversal of the chunks of the terrain
@@ -106,9 +108,9 @@ public:
             {
                 int ret = 0;
 
-                foreach (loadedChunk; terrain.mLoadedChunks[])
+                foreach (loadedChunk; terrain.mLoadedChunks.byValue())
                 {
-                    ret = dg(loadedChunk.chunk);
+                    ret = dg(loadedChunk);
                     if (ret)
                         break;
                 }
@@ -122,35 +124,8 @@ public:
 
     Chunk find(vec3i p)
     {
-        auto loadedChunk = LoadedChunk(morton(p), null);
-        auto r = mLoadedChunks.equalRange(loadedChunk);
-        return r.empty ? null : r.front.chunk;
-    }
-
-    void buildMesh(Chunk chunk)
-    in
-    {
-        assert(chunk.loadedNgb.areAllNgbLoaded);
-    }
-    body
-    {
-        Face getNeighborFace(Chunk chunk, Axis a, Side s)
-        {
-            auto ngbChunk = chunk.neighbors[a][s];
-            // If it's not loaded, pretend the chunk is full
-            // (to avoid having to create unseen quads)
-            if (ngbChunk is null)
-                return (x, y) => true;
-
-            return ngbChunk.face(a, s == Side.front ? Side.back : Side.front);
-        }
-
-        chunk.buildMesh(getNeighborFace(chunk, Axis.x, Side.back),
-                        getNeighborFace(chunk, Axis.x, Side.front),
-                        getNeighborFace(chunk, Axis.y, Side.back),
-                        getNeighborFace(chunk, Axis.y, Side.front),
-                        getNeighborFace(chunk, Axis.z, Side.back),
-                        getNeighborFace(chunk, Axis.z, Side.front));
+        auto loadedChunk = Morton(morton(p)) in mLoadedChunks;
+        return loadedChunk is null ? null : *loadedChunk;
     }
 
     bool isInside(vec3i p) const
@@ -192,9 +167,8 @@ private:
             chunk.loadedNgb.setNgbId(Axis.z, Side.front);
     }
 
-    uint                                     mSize;  // in chunks
-    Generator                                mGen;
-    Pool!Chunk                               mChunkPool;
-    RedBlackTree!(LoadedChunk,
-                  "a.mortonId < b.mortonId") mLoadedChunks;
+    uint          mSize;  // in chunks
+    Populator     mPopulator;
+    Pool!Chunk    mChunkPool;
+    Chunk[Morton] mLoadedChunks;
 }

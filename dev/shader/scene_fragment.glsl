@@ -35,7 +35,7 @@ void main()
     vec3 lightDir = normalize(lightRay.direction.xyz);
     vec3 lightColor = lightRay.color.rgb;
 
-    vec3 materialDiffuseColor  = vec3(0.1, 0.5, 0.9);
+    vec3 materialDiffuseColor  = vec3(0.9, 0.5, 0.1);
     vec3 materialAmbientColor  = vec3(0.1, 0.1, 0.1) * materialDiffuseColor;
     vec3 materialSpecularColor = vec3(0.3, 0.3, 0.3);
 

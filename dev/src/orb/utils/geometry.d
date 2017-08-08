@@ -322,3 +322,18 @@ ulong morton(vec3i p) pure /*nothrow*/ @safe /*@nogc*/ //toString...
 
     return x | (y << 1) | (z << 2);
 }
+
+/**
+ * Aera calculation squared.
+ */
+float area2()(auto ref const(vec3f) p0,
+              auto ref const(vec3f) p1,
+              auto ref const(vec3f) p2)
+    pure nothrow @safe @nogc
+{
+        float a = (p0 - p1).length;
+        float b = (p1 - p2).length;
+        float c = (p2 - p0).length;
+        float s = (a + b + c) / 2.0f;
+        return s * (s - a) * (s - b) * (s - c);
+}

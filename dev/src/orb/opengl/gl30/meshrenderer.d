@@ -37,12 +37,9 @@ public:
         destroy(mProgram);
     }
 
-    IMesh createMesh(in vec3f[] points,
-                     in vec3f[] normals,
-                     in uint[] indices)
+    IMesh createMesh()
     {
-        return cast(IMesh)new Gl30Mesh(points, normals, indices,
-                                       mProgram.attributeLayout);
+        return cast(IMesh)new Gl30Mesh(mProgram.attributeLayout);
     }
 
     void setDirLight(vec4f dirLight, vec4f dirColor)

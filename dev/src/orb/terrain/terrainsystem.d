@@ -192,7 +192,7 @@ private:
         if (chunk.mesh !is null)
             return;
         mBmMesh.start();
-        mTerrain.buildMesh(chunk);
+        chunk.buildMesh();
         mBmMesh.stop();
 
         // Management benchmark should not take meshing into account
