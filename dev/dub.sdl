@@ -10,22 +10,22 @@ excludedSourceFiles "src/old/*.d"
 
 configuration "linux64_x86" {
         targetType "executable"
-        platforms  "linux" "x86_64"
+        platforms  "linux-x86_64"
         targetPath "out/linux64_x86"
     }
 configuration "linux32_x86" {
         targetType "executable"
-        platforms  "linux" "x86"
+        platforms  "linux-x86"
         targetPath "out/linux32_x86"
     }
 configuration "win64_x86" {
         targetType "executable"
-        platforms  "windows" "x86_64"
+        platforms  "windows-x86_64"
         targetPath "out/win64_x86"
     }
 configuration "win32_x86" {
         targetType "executable"
-        platforms  "windows" "x86"
+        platforms  "windows-x86"
         targetPath "out/win32_x86"
     }
 
