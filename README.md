@@ -15,28 +15,45 @@ Graphic/multimedia library: **SDL2.0**
 
 OpenGL version: **3.0** *(GLSL: 1.30)*
 
+Screenshots
+===========
+
+![Screenshot-00](screenshot-00.png?raw=true "Screenshot-00")
+
 Developer installation
 ======================
 
-On a freshly installed Debian based GNU/linux system.
-
 General tools
 -------------
+
+GNU/Linux:
 
 ```
 sudo apt-get install git gitk libcurl3
 ```
 
+Windows:
+
+
+> https://git-for-windows.github.io/
+
 SDL2 resources
 -------------
 
+GNU/Linux:
+
 ```
-sudo apt-get install libsdl2-2.0-0 libsdl2-gfx-1.0-0 libsdl2-image-2.0-0 libsdl2-mixer-2.0-0 libsdl2-net-2.0-0 libsdl2-ttf-2.0-0
+sudo apt-get install libsdl2-2.0-0 libsdl2-image-2.0-0
 ```
+
+Windows (run-time libraries):
+
+> https://www.libsdl.org/download-2.0.php
+> https://www.libsdl.org/projects/SDL_image/
+
 
 D resources
 -----------
 
 DMD compiler and build tools (dub):
 > http://dlang.org/download.html
-
